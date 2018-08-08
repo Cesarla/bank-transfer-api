@@ -15,7 +15,7 @@ class TransferSpec extends WordSpec with Matchers with PlayJsonSupport with Fixt
       (json \ "source_id").as[AccountId] should === (transferFixture.sourceId)
       (json \ "target_id").as[AccountId] should === (transferFixture.targetId)
       (json \ "money").as[Money] should === (transferFixture.money)
-      (json \ "create_at").as[Instant] should === (transferFixture.createAt)
+      (json \ "created_at").as[Instant] should === (transferFixture.createdAt)
       (json \ "status").as[OperationStatus] should === (transferFixture.status)
     }
 
@@ -29,7 +29,7 @@ class TransferSpec extends WordSpec with Matchers with PlayJsonSupport with Fixt
           |   "money": {
           |     "total": "42", "currency": "EUR"
           |   },
-          |   "create_at": "1970-01-01T00:00:00Z",
+          |   "created_at": "1970-01-01T00:00:00Z",
           |   "status": "SUCCESSFUL"
           |}
         """.stripMargin)

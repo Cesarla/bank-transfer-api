@@ -13,7 +13,7 @@ class DepositSpec  extends WordSpec with Matchers with PlayJsonSupport with Fixt
       (json \ "operation_id").as[OperationId] should === (depositFixture.operationId)
       (json \ "account_id").as[AccountId] should === (depositFixture.accountId)
       (json \ "money").as[Money] should === (depositFixture.money)
-      (json \ "create_at").as[Instant] should === (depositFixture.createAt)
+      (json \ "created_at").as[Instant] should === (depositFixture.createdAt)
       (json \ "status").as[OperationStatus] should === (depositFixture.status)
     }
 
@@ -26,7 +26,7 @@ class DepositSpec  extends WordSpec with Matchers with PlayJsonSupport with Fixt
           |   "money": {
           |     "total": "42", "currency": "EUR"
           |   },
-          |   "create_at": "1970-01-01T00:00:00Z",
+          |   "created_at": "1970-01-01T00:00:00Z",
           |   "status": "SUCCESSFUL"
           |}
         """.stripMargin)

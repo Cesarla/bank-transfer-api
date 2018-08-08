@@ -51,4 +51,12 @@ trait Fixtures {
     Instant.EPOCH,
     status = OperationStatus.Successful
   )
+
+  lazy val snapshotFixture: Snapshot = Snapshot(
+    accountId1Fixture, moneyFixture, Instant.EPOCH
+  )
+
+  lazy val recordFixture: Record = Record(
+    accountId1Fixture, moneyFixture, Instant.EPOCH, Some(operationIdFixture)
+  )
 }

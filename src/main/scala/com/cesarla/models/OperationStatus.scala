@@ -12,5 +12,5 @@ object OperationStatus extends Enum[OperationStatus] with PlayJsonEnum[Operation
 
   case object Successful extends OperationStatus
   case object Failed extends OperationStatus
-  case object InProgress extends OperationStatus
+  case object Progress extends OperationStatus
 }

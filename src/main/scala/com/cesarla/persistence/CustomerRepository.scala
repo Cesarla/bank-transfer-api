@@ -10,8 +10,6 @@ class CustomerRepository {
 
   def getCustomer(customerId: CustomerId): Option[Customer] = customersById.get(customerId)
 
-  def existsCustomer(customerId: CustomerId): Boolean = customersById.contains(customerId)
-
   def existsCustomer(email: String): Boolean = customersByEmail.contains(email)
 
   def setCustomer(customer: Customer): Unit = {

@@ -9,29 +9,21 @@ import play.api.libs.functional.syntax._
 
 sealed trait Operation {
   val operationId: OperationId
-  val createAt: Instant
+  val createdAt: Instant
   val status: OperationStatus
   val detail: Option[String]
-
-  def setStatus(status: OperationStatus): Operation = {
-    this match {
-      case transfer: Transfer     => transfer.copy(status = status)
-      case deposit: Deposit       => deposit.copy(status = status)
-      case withdrawal: Withdrawal => withdrawal.copy(status = status)
-    }
-  }
 }
 
 final case class Transfer(operationId: OperationId,
                           sourceId: AccountId,
                           targetId: AccountId,
                           money: Money,
-                          createAt: Instant,
+                          createdAt: Instant,
                           status: OperationStatus,
                           detail: Option[String] = None)
     extends Operation {
-  def asSourceRecord: Record = Record(sourceId, money, createAt, Some(operationId))
-  def asTargetRecord: Record = Record(targetId, -money, createAt, Some(operationId))
+  def asSourceRecord: Record = Record(sourceId, money, createdAt, Some(operationId))
+  def asTargetRecord: Record = Record(targetId, -money, createdAt, Some(operationId))
 }
 
 object Transfer extends JsonFormatting {
@@ -41,8 +33,8 @@ object Transfer extends JsonFormatting {
       (JsPath \ "source_id").read[AccountId] and
       (JsPath \ "target_id").read[AccountId] and
       (JsPath \ "money").read[Money] and
-      (JsPath \ "create_at").readWithDefault(Instant.now()) and
-      (JsPath \ "status").readWithDefault[OperationStatus](OperationStatus.InProgress) and
+      (JsPath \ "created_at").readWithDefault(Instant.now()) and
+      (JsPath \ "status").readWithDefault[OperationStatus](OperationStatus.Progress) and
       (JsPath \ "detail").readNullable[String]
   )(Transfer.apply _)
 }
@@ -50,11 +42,11 @@ object Transfer extends JsonFormatting {
 final case class Deposit(operationId: OperationId,
                          accountId: AccountId,
                          money: Money,
-                         createAt: Instant,
+                         createdAt: Instant,
                          status: OperationStatus,
                          detail: Option[String] = None)
     extends Operation {
-  def asRecord: Record = Record(accountId, money, createAt, Some(operationId))
+  def asRecord: Record = Record(accountId, money, createdAt, Some(operationId))
 }
 
 object Deposit extends JsonFormatting {
@@ -63,8 +55,8 @@ object Deposit extends JsonFormatting {
     (JsPath \ "operation_id").readWithDefault(OperationId.generate) and
       (JsPath \ "account_id").read[AccountId] and
       (JsPath \ "money").read[Money] and
-      (JsPath \ "create_at").readWithDefault(Instant.now()) and
-      (JsPath \ "status").readWithDefault[OperationStatus](OperationStatus.InProgress) and
+      (JsPath \ "created_at").readWithDefault(Instant.now()) and
+      (JsPath \ "status").readWithDefault[OperationStatus](OperationStatus.Progress) and
       (JsPath \ "detail").readNullable[String]
   )(Deposit.apply _)
 }
@@ -72,11 +64,11 @@ object Deposit extends JsonFormatting {
 final case class Withdrawal(operationId: OperationId,
                             accountId: AccountId,
                             money: Money,
-                            createAt: Instant,
+                            createdAt: Instant,
                             status: OperationStatus,
                             detail: Option[String] = None)
     extends Operation {
-  def asRecord: Record = Record(accountId, money, createAt, Some(operationId))
+  def asRecord: Record = Record(accountId, -money, createdAt, Some(operationId))
 }
 
 object Withdrawal extends JsonFormatting {
@@ -85,8 +77,8 @@ object Withdrawal extends JsonFormatting {
     (JsPath \ "operation_id").readWithDefault(OperationId.generate) and
       (JsPath \ "account_id").read[AccountId] and
       (JsPath \ "money").read[Money] and
-      (JsPath \ "create_at").readWithDefault(Instant.now()) and
-      (JsPath \ "status").readWithDefault[OperationStatus](OperationStatus.InProgress) and
+      (JsPath \ "created_at").readWithDefault(Instant.now()) and
+      (JsPath \ "status").readWithDefault[OperationStatus](OperationStatus.Progress) and
       (JsPath \ "detail").readNullable[String]
   )(Withdrawal.apply _)
 }

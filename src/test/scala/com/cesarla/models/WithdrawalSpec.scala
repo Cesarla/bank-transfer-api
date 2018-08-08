@@ -13,7 +13,7 @@ class WithdrawalSpec extends WordSpec with Matchers with PlayJsonSupport with Fi
       (json \ "operation_id").as[OperationId] should === (withdrawalFixture.operationId)
       (json \ "account_id").as[AccountId] should === (withdrawalFixture.accountId)
       (json \ "money").as[Money] should === (withdrawalFixture.money)
-      (json \ "create_at").as[Instant] should === (withdrawalFixture.createAt)
+      (json \ "created_at").as[Instant] should === (withdrawalFixture.createdAt)
       (json \ "status").as[OperationStatus] should === (withdrawalFixture.status)
     }
 
@@ -26,7 +26,7 @@ class WithdrawalSpec extends WordSpec with Matchers with PlayJsonSupport with Fi
           |   "money": {
           |     "total": "42", "currency": "EUR"
           |   },
-          |   "create_at": "1970-01-01T00:00:00Z",
+          |   "created_at": "1970-01-01T00:00:00Z",
           |   "status": "SUCCESSFUL"
           |}
         """.stripMargin)
