@@ -10,6 +10,7 @@ final case class Money(total: BigDecimal, currency: String) {
 }
 
 object Money extends JsonFormatting {
+  val Euro = "EUR"
   def zero(currency: String) = Money(0, currency)
 
   implicit val jsonFormats: Format[Money] = Json.format[Money]
