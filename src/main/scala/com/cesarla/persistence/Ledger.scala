@@ -8,8 +8,9 @@ import scala.collection.concurrent.TrieMap
 
 class Ledger(log: TrieMap[AccountId, List[Record]] = TrieMap.empty) {
 
-  def storeRecord(accountId: AccountId, record: Record): Option[List[Record]] = {
+  def storeRecord(accountId: AccountId, record: Record): Unit = {
     log.put(accountId, log.getOrElse(accountId, List.empty[Record]) :+ record)
+    ()
   }
 
   def getRecords(accountId: AccountId): List[Record] = {

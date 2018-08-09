@@ -76,5 +76,6 @@ lazy val root = (project in file(".")).settings(
     "-Ywarn-unused:privates", // Warn if a private member is unused.
     "-Ywarn-value-discard" // Warn when non-Unit expression results are unused.)
   ),
-  Compile / console / scalacOptions --= Seq("-Ywarn-unused:imports", "-Xfatal-warnings")
+  Compile / console / scalacOptions --= Seq("-Ywarn-unused:imports", "-Xfatal-warnings"),
+  Test / fork := true
 )
