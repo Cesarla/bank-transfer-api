@@ -20,7 +20,9 @@ object Money extends JsonFormatting {
   )(Money.apply _)
 
   implicit val jsonWrites: Writes[Money] = (
-    (JsPath \ "total").write[String].contramap((b: BigDecimal) => b.setScale(4, BigDecimal.RoundingMode.DOWN).toString()) and
+    (JsPath \ "total")
+      .write[String]
+      .contramap((b: BigDecimal) => b.setScale(4, BigDecimal.RoundingMode.DOWN).toString()) and
       (JsPath \ "currency").write[String]
   )(unlift(Money.unapply))
 }
