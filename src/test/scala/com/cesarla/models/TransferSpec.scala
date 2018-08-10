@@ -27,7 +27,7 @@ class TransferSpec extends WordSpec with Matchers with PlayJsonSupport with Fixt
           |   "source_id": "3983a173-b4a5-4c22-ac34-288fcc095fa7",
           |   "target_id": "21315d41-9327-4787-a135-b33d4f842647",
           |   "money": {
-          |     "total": "42", "currency": "EUR"
+          |     "total": "42.0000", "currency": "EUR"
           |   },
           |   "created_at": "1970-01-01T00:00:00Z",
           |   "status": "SUCCESSFUL"

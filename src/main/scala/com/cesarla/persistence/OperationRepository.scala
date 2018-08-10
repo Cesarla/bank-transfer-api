@@ -13,5 +13,4 @@ class OperationRepository {
     map.put(operation.operationId, operation)
     operation
   }
-
 }
