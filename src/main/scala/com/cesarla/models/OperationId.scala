@@ -11,9 +11,11 @@ final case class OperationId(value: UUID) extends AnyVal {
 }
 
 object OperationId extends JsonFormatting {
-  def generate(implicit ug: UUID1Generator): OperationId = OperationId(ug.generate)
-  def valueOf(value: String) = OperationId(UUID.fromString(value))
   implicit val jsonFormats: Format[OperationId] = Format(
     JsPath.read[String].map(UUID.fromString).map(OperationId.apply),
     Writes[OperationId](operationId => JsString(operationId.value.toString)))
+
+  def generate(implicit ug: UUID1Generator): OperationId = OperationId(ug.generate)
+
+  def valueOf(value: String) = OperationId(UUID.fromString(value))
 }

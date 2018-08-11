@@ -1,5 +1,7 @@
 package com.cesarla.services
 
+import java.time.Clock
+
 import com.cesarla.data.Fixtures
 import com.cesarla.models._
 import com.cesarla.persistence.CustomerRepository
@@ -30,7 +32,7 @@ class AccountServiceSpec extends WordSpec with Matchers with PlayJsonSupport wit
           .once()
         (() => mockTimeBasedGenerator.generate).expects().returning(accountId1Fixture.value).twice()
         val Right(accountId) =
-          Await.result(accountService.createAccount(customerIdFixture, Money.Dolar), 100.milliseconds)
+          Await.result(accountService.createAccount(customerIdFixture, Money.Dollar), 100.milliseconds)
         accountId should ===(accountId1Fixture)
       }
 
@@ -52,7 +54,8 @@ class AccountServiceSpec extends WordSpec with Matchers with PlayJsonSupport wit
     val mockCustomerRepository: CustomerRepository = mock[CustomerRepository]
     val mockLedgerService: LedgerService = mock[LedgerService]
     val mockTimeBasedGenerator: UUID1Generator = mock[UUID1Generator]
-    val accountService = new AccountService(mockCustomerRepository, mockLedgerService)(mockTimeBasedGenerator)
+    val mockClock: Clock = Clock.systemUTC()
+    val accountService = new AccountService(mockCustomerRepository, mockLedgerService)(mockClock, mockTimeBasedGenerator)
   }
 
 }

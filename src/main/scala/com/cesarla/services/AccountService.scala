@@ -1,6 +1,6 @@
 package com.cesarla.services
 
-import java.time.Instant
+import java.time.{Clock, Instant}
 
 import com.cesarla.models._
 import com.cesarla.persistence.CustomerRepository
@@ -9,7 +9,7 @@ import com.fasterxml.uuid.{NoArgGenerator => UUID1Generator}
 import scala.concurrent.Future
 
 class AccountService(customerRepository: CustomerRepository, ledgerService: LedgerService)(
-    implicit tbg: UUID1Generator) {
+    implicit clock:Clock, tbg: UUID1Generator) {
   def readAccount(accountId: AccountId): Future[Either[Problem, Snapshot]] = ledgerService.computeBalance(accountId)
 
   def createAccount(customerId: CustomerId, currency: String): Future[Either[Problem, AccountId]] =
@@ -26,7 +26,7 @@ class AccountService(customerRepository: CustomerRepository, ledgerService: Ledg
             )
 
             ledgerService.dispatchOperation(
-              Deposit(OperationId.generate, accountId, Money.zero("EUR"), Instant.now(), OperationStatus.Progress))
+              Deposit(OperationId.generate, accountId, Money.zero("EUR"), Instant.now(clock), OperationStatus.Progress))
 
             Right(accountId)
           }

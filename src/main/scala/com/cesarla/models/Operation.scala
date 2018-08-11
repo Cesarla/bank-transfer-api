@@ -1,6 +1,6 @@
 package com.cesarla.models
 
-import java.time.Instant
+import java.time.{Clock, Instant}
 
 import com.cesarla.utils.JsonFormatting
 import com.fasterxml.uuid.{NoArgGenerator => UUID1Generator}
@@ -22,8 +22,8 @@ final case class Transfer(operationId: OperationId,
                           status: OperationStatus,
                           detail: Option[String] = None)
     extends Operation {
-  def asSourceRecord: Record = Record(sourceId, money, createdAt, Some(operationId))
-  def asTargetRecord: Record = Record(targetId, -money, createdAt, Some(operationId))
+  def asDeposit: Deposit = Deposit(operationId, targetId, money, createdAt, status)
+  def asRecord: Record = Record(targetId, -money, createdAt, Some(operationId))
 }
 
 object Transfer extends JsonFormatting {
@@ -75,12 +75,12 @@ final case class Withdrawal(operationId: OperationId,
 
 object Withdrawal extends JsonFormatting {
   implicit val jsonWrites: OWrites[Withdrawal] = Json.writes[Withdrawal]
-  implicit def jsonReads(implicit ug: UUID1Generator): Reads[Withdrawal] =
+  implicit def jsonReads(implicit clock:Clock, ug: UUID1Generator): Reads[Withdrawal] =
     (
       (JsPath \ "operation_id").readWithDefault(OperationId.generate) and
         (JsPath \ "account_id").read[AccountId] and
         (JsPath \ "money").read[Money] and
-        (JsPath \ "created_at").readWithDefault(Instant.now()) and
+        (JsPath \ "created_at").readWithDefault(Instant.now(clock)) and
         (JsPath \ "status").readWithDefault[OperationStatus](OperationStatus.Progress) and
         (JsPath \ "detail").readNullable[String]
     )(Withdrawal.apply _)

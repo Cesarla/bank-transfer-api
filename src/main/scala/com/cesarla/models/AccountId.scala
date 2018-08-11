@@ -11,11 +11,11 @@ final case class AccountId(value: UUID) extends AnyVal {
 }
 
 object AccountId extends JsonFormatting {
-  def generate(implicit ug: UUID1Generator): AccountId = AccountId(ug.generate)
-
-  def valueOf(value: String) = AccountId(UUID.fromString(value))
-
   implicit val jsonFormats: Format[AccountId] = Format(
     JsPath.read[String].map(UUID.fromString).map(AccountId.apply),
     Writes[AccountId](accountId => JsString(accountId.value.toString)))
+
+  def generate(implicit ug: UUID1Generator): AccountId = AccountId(ug.generate)
+
+  def valueOf(value: String) = AccountId(UUID.fromString(value))
 }
