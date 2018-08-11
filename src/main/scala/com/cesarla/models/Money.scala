@@ -12,6 +12,8 @@ final case class Money(total: BigDecimal, currency: String) {
 
 object Money extends JsonFormatting {
   val Euro = "EUR"
+  val Dolar = "USD"
+  val Pound = "GBP"
   def zero(currency: String) = Money(0, currency)
 
   implicit val jsonReads: Reads[Money] = (

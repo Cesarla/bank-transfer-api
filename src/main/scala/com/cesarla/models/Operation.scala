@@ -3,6 +3,7 @@ package com.cesarla.models
 import java.time.Instant
 
 import com.cesarla.utils.JsonFormatting
+import com.fasterxml.uuid.{NoArgGenerator => UUID1Generator}
 import play.api.libs.json.Json
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
@@ -28,15 +29,16 @@ final case class Transfer(operationId: OperationId,
 
 object Transfer extends JsonFormatting {
   implicit val jsonWrites: OWrites[Transfer] = Json.writes[Transfer]
-  implicit val jsonReads: Reads[Transfer] = (
-    (JsPath \ "operation_id").readWithDefault(OperationId.generate) and
-      (JsPath \ "source_id").read[AccountId] and
-      (JsPath \ "target_id").read[AccountId] and
-      (JsPath \ "money").read[Money] and
-      (JsPath \ "created_at").readWithDefault(Instant.now()) and
-      (JsPath \ "status").readWithDefault[OperationStatus](OperationStatus.Progress) and
-      (JsPath \ "detail").readNullable[String]
-  )(Transfer.apply _)
+  implicit def jsonReads(implicit ug: UUID1Generator): Reads[Transfer] =
+    (
+      (JsPath \ "operation_id").readWithDefault(OperationId.generate) and
+        (JsPath \ "source_id").read[AccountId] and
+        (JsPath \ "target_id").read[AccountId] and
+        (JsPath \ "money").read[Money] and
+        (JsPath \ "created_at").readWithDefault(Instant.now()) and
+        (JsPath \ "status").readWithDefault[OperationStatus](OperationStatus.Progress) and
+        (JsPath \ "detail").readNullable[String]
+    )(Transfer.apply _)
 }
 
 final case class Deposit(operationId: OperationId,
@@ -51,14 +53,15 @@ final case class Deposit(operationId: OperationId,
 
 object Deposit extends JsonFormatting {
   implicit val jsonWrites: OWrites[Deposit] = Json.writes[Deposit]
-  implicit val jsonReads: Reads[Deposit] = (
-    (JsPath \ "operation_id").readWithDefault(OperationId.generate) and
-      (JsPath \ "account_id").read[AccountId] and
-      (JsPath \ "money").read[Money] and
-      (JsPath \ "created_at").readWithDefault(Instant.now()) and
-      (JsPath \ "status").readWithDefault[OperationStatus](OperationStatus.Progress) and
-      (JsPath \ "detail").readNullable[String]
-  )(Deposit.apply _)
+  implicit def jsonReads(implicit ug: UUID1Generator): Reads[Deposit] =
+    (
+      (JsPath \ "operation_id").readWithDefault(OperationId.generate) and
+        (JsPath \ "account_id").read[AccountId] and
+        (JsPath \ "money").read[Money] and
+        (JsPath \ "created_at").readWithDefault(Instant.now()) and
+        (JsPath \ "status").readWithDefault[OperationStatus](OperationStatus.Progress) and
+        (JsPath \ "detail").readNullable[String]
+    )(Deposit.apply _)
 }
 
 final case class Withdrawal(operationId: OperationId,
@@ -73,12 +76,13 @@ final case class Withdrawal(operationId: OperationId,
 
 object Withdrawal extends JsonFormatting {
   implicit val jsonWrites: OWrites[Withdrawal] = Json.writes[Withdrawal]
-  implicit val jsonReads: Reads[Withdrawal] = (
-    (JsPath \ "operation_id").readWithDefault(OperationId.generate) and
-      (JsPath \ "account_id").read[AccountId] and
-      (JsPath \ "money").read[Money] and
-      (JsPath \ "created_at").readWithDefault(Instant.now()) and
-      (JsPath \ "status").readWithDefault[OperationStatus](OperationStatus.Progress) and
-      (JsPath \ "detail").readNullable[String]
-  )(Withdrawal.apply _)
+  implicit def jsonReads(implicit ug: UUID1Generator): Reads[Withdrawal] =
+    (
+      (JsPath \ "operation_id").readWithDefault(OperationId.generate) and
+        (JsPath \ "account_id").read[AccountId] and
+        (JsPath \ "money").read[Money] and
+        (JsPath \ "created_at").readWithDefault(Instant.now()) and
+        (JsPath \ "status").readWithDefault[OperationStatus](OperationStatus.Progress) and
+        (JsPath \ "detail").readNullable[String]
+    )(Withdrawal.apply _)
 }

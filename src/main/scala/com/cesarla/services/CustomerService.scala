@@ -2,10 +2,11 @@ package com.cesarla.services
 
 import com.cesarla.models.{Customer, CustomerId, Problem, Problems}
 import com.cesarla.persistence.CustomerRepository
+import com.fasterxml.uuid.{NoArgGenerator => UUID1Generator}
 
 import scala.concurrent.Future
 
-class CustomerService(customerRepository: CustomerRepository) {
+class CustomerService(customerRepository: CustomerRepository)(implicit tbg: UUID1Generator) {
   def getCustomer(customerId: CustomerId): Future[Either[Problem, Customer]] =
     Future.successful {
       customerRepository.getCustomer(customerId) match {

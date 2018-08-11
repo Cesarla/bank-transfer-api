@@ -17,7 +17,7 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
       "valid deposits" in new WithStubs {
         val Right(_) =
           Await.result(ledgerService.dispatchOperation(depositFixture.copy(status = OperationStatus.Progress)),
-            100.milliseconds)
+            150.milliseconds)
         eventually {
           val Right(deposit: Deposit) = ledgerService.get[Deposit](depositFixture.operationId)
           deposit.status should ===(OperationStatus.Successful)
@@ -28,7 +28,7 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
         (mockLedger.replayAccount _).when(*).returns(snapshotFixture)
         val Right(_) =
           Await.result(ledgerService.dispatchOperation(withdrawalFixture.copy(status = OperationStatus.Progress)),
-            100.milliseconds)
+            150.milliseconds)
 
         eventually {
           val Right(withdrawal: Withdrawal) = ledgerService.get[Withdrawal](withdrawalFixture.operationId)
@@ -41,7 +41,7 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
         val Right(_) =
           Await.result(ledgerService.dispatchOperation(
                          withdrawalFixture.copy(money = Money(100, "EUR"), status = OperationStatus.Progress)),
-            100.milliseconds)
+            150.milliseconds)
         eventually {
           val Right(withdrawal: Withdrawal) = ledgerService.get[Withdrawal](withdrawalFixture.operationId)
           withdrawal.status should ===(OperationStatus.Failed)
@@ -53,7 +53,7 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
         (mockLedger.replayAccount _).when(*).returns(snapshotFixture)
         val Right(_) =
           Await.result(ledgerService.dispatchOperation(transferFixture.copy(status = OperationStatus.Progress)),
-            100.milliseconds)
+            150.milliseconds)
         eventually {
           val Right(transfer: Transfer) = ledgerService.get[Transfer](transferFixture.operationId)
           transfer.status should ===(OperationStatus.Successful)
@@ -65,7 +65,7 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
         val Right(_) =
           Await.result(ledgerService.dispatchOperation(
                          transferFixture.copy(money = Money(100, "EUR"), status = OperationStatus.Progress)),
-            200.milliseconds)
+            150.milliseconds)
         eventually {
           val Right(transfer: Transfer) = ledgerService.get[Transfer](transferFixture.operationId)
           transfer.status should ===(OperationStatus.Failed)
@@ -120,13 +120,13 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
     trait WithMocks {
       val mockLedger: Ledger = mock[Ledger]
       val mockOperationRepository: OperationRepository = mock[OperationRepository]
-      val ledgerService = new LedgerService(mockLedger, mockOperationRepository)
+      val ledgerService: LedgerService = new LedgerService(mockLedger, mockOperationRepository)
 
     }
 
     trait WithStubs {
       val mockLedger: Ledger = stub[Ledger]
-      val ledgerService = new LedgerService(mockLedger, new OperationRepository())
+      val ledgerService: LedgerService = new LedgerService(mockLedger, new OperationRepository())
     }
 
   }

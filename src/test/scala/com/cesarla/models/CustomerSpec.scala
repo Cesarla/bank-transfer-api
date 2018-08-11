@@ -1,12 +1,14 @@
 package com.cesarla.models
 import com.cesarla.data.Fixtures
+import com.fasterxml.uuid.Generators
+import com.fasterxml.uuid.impl.TimeBasedGenerator
 import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
 import org.scalatest.{Matchers, WordSpec}
 import play.api.libs.json.{JsValue, Json}
 
 class CustomerSpec extends WordSpec with Matchers with PlayJsonSupport with Fixtures {
+  implicit val tbg:TimeBasedGenerator = Generators.timeBasedGenerator()
   "Customer" should {
-
     "serialize" in {
         val json: JsValue = Json.toJson(customerFixture)
         (json \ "id").as[CustomerId] should === (customerFixture.id)

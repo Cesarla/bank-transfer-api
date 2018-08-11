@@ -13,7 +13,6 @@ class MoneySpec extends WordSpec with Matchers with PlayJsonSupport with Fixture
       (json \ "currency").as[String] should ===( "EUR")
     }
 
-
     "deserialize" in {
       val json: JsValue = Json.parse(
         """

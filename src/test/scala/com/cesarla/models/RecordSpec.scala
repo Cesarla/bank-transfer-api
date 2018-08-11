@@ -16,7 +16,6 @@ class RecordSpec extends WordSpec with Matchers with PlayJsonSupport with Fixtur
       (json \ "operation_id").asOpt[OperationId] should ===(recordFixture.operationId)
     }
 
-
     "deserialize" in {
       val json: JsValue = Json.parse(
         """

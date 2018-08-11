@@ -3,6 +3,7 @@ package com.cesarla.services
 import com.cesarla.data.Fixtures
 import com.cesarla.models.{Customer, CustomerId, Problems}
 import com.cesarla.persistence.CustomerRepository
+import com.fasterxml.uuid.{NoArgGenerator => UUID1Generator}
 import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{Matchers, WordSpec}
@@ -30,9 +31,10 @@ class CustomerServiceSpec extends WordSpec with Matchers with PlayJsonSupport wi
       "if customer freshly registered" in new WithMocks {
         (mockCustomerRepository.existsCustomer(_:String)).expects(*).returning(false)
         (mockCustomerRepository.setCustomer(_:Customer)).expects(*)
+        (() => mockTimeBasedGenerator.generate).expects().returning(customerIdFixture.value)
         val Right(customer) = Await.result(customerService.createCustomer(customerFixture.email), 100.milliseconds)
 
-        customer.email === ( customerFixture.email)
+        customer should === (Customer(customerIdFixture, customerFixture.email))
       }
 
       "return problem if email already registered" in new WithMocks {
@@ -42,10 +44,10 @@ class CustomerServiceSpec extends WordSpec with Matchers with PlayJsonSupport wi
       }
     }
 
-
     trait WithMocks {
-      val mockCustomerRepository = mock[CustomerRepository]
-      val customerService = new CustomerService(mockCustomerRepository)
+      val mockCustomerRepository: CustomerRepository = mock[CustomerRepository]
+      val mockTimeBasedGenerator: UUID1Generator = mock[UUID1Generator]
+      val customerService = new CustomerService(mockCustomerRepository)(mockTimeBasedGenerator)
     }
   }
 

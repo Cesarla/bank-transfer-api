@@ -2,11 +2,14 @@ package com.cesarla.models
 import java.time.Instant
 
 import com.cesarla.data.Fixtures
+import com.fasterxml.uuid.Generators
+import com.fasterxml.uuid.impl.TimeBasedGenerator
 import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
 import org.scalatest.{Matchers, WordSpec}
 import play.api.libs.json.{JsValue, Json}
 
 class WithdrawalSpec extends WordSpec with Matchers with PlayJsonSupport with Fixtures {
+  implicit val tbg:TimeBasedGenerator = Generators.timeBasedGenerator()
   "Deposit" should {
     "serialize" in {
       val json: JsValue = Json.toJson(withdrawalFixture)
