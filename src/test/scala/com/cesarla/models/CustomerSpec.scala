@@ -7,18 +7,17 @@ import org.scalatest.{Matchers, WordSpec}
 import play.api.libs.json.{JsValue, Json}
 
 class CustomerSpec extends WordSpec with Matchers with PlayJsonSupport with Fixtures {
-  implicit val tbg:TimeBasedGenerator = Generators.timeBasedGenerator()
+  implicit val tbg: TimeBasedGenerator = Generators.timeBasedGenerator()
   "Customer" should {
     "serialize" in {
-        val json: JsValue = Json.toJson(customerFixture)
-        (json \ "id").as[CustomerId] should === (customerFixture.id)
-        (json \ "email").as[String] should === (customerFixture.email)
-        (json \ "accounts").as[Map[String, AccountId]] should === (customerFixture.accounts)
+      val json: JsValue = Json.toJson(customerFixture)
+      (json \ "id").as[CustomerId] should ===(customerFixture.id)
+      (json \ "email").as[String] should ===(customerFixture.email)
+      (json \ "accounts").as[Map[String, AccountId]] should ===(customerFixture.accounts)
     }
 
     "deserialize" in {
-      val json: JsValue = Json.parse(
-        """
+      val json: JsValue = Json.parse("""
           |{
           |   "id": "50554d6e-29bb-11e5-b345-feff819cdc9f",
           |   "email": "bob@example.com",
@@ -27,7 +26,7 @@ class CustomerSpec extends WordSpec with Matchers with PlayJsonSupport with Fixt
           |   }
           |}
         """.stripMargin)
-      json.as[Customer] should === (customerFixture)
+      json.as[Customer] should ===(customerFixture)
     }
   }
 }

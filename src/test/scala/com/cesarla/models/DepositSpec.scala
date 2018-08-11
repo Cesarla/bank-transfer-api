@@ -8,21 +8,20 @@ import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
 import org.scalatest.{Matchers, WordSpec}
 import play.api.libs.json.{JsValue, Json}
 
-class DepositSpec  extends WordSpec with Matchers with PlayJsonSupport with Fixtures {
-  implicit val tbg:TimeBasedGenerator = Generators.timeBasedGenerator()
+class DepositSpec extends WordSpec with Matchers with PlayJsonSupport with Fixtures {
+  implicit val tbg: TimeBasedGenerator = Generators.timeBasedGenerator()
   "Deposit" should {
     "serialize" in {
       val json: JsValue = Json.toJson(depositFixture)
-      (json \ "operation_id").as[OperationId] should === (depositFixture.operationId)
-      (json \ "account_id").as[AccountId] should === (depositFixture.accountId)
-      (json \ "money").as[Money] should === (depositFixture.money)
-      (json \ "created_at").as[Instant] should === (depositFixture.createdAt)
-      (json \ "status").as[OperationStatus] should === (depositFixture.status)
+      (json \ "operation_id").as[OperationId] should ===(depositFixture.operationId)
+      (json \ "account_id").as[AccountId] should ===(depositFixture.accountId)
+      (json \ "money").as[Money] should ===(depositFixture.money)
+      (json \ "created_at").as[Instant] should ===(depositFixture.createdAt)
+      (json \ "status").as[OperationStatus] should ===(depositFixture.status)
     }
 
     "deserialize" in {
-      val json: JsValue = Json.parse(
-        """
+      val json: JsValue = Json.parse("""
           |{
           |   "operation_id": "3a5aaf3c-0c31-425b-ac09-d0887d3ae2ba",
           |   "account_id": "3983a173-b4a5-4c22-ac34-288fcc095fa7",
@@ -33,7 +32,7 @@ class DepositSpec  extends WordSpec with Matchers with PlayJsonSupport with Fixt
           |   "status": "SUCCESSFUL"
           |}
         """.stripMargin)
-      json.as[Deposit] should === (depositFixture)
+      json.as[Deposit] should ===(depositFixture)
     }
   }
 }

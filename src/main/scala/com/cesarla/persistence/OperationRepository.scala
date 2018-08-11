@@ -4,8 +4,7 @@ import com.cesarla.models.{Operation, OperationId}
 
 import scala.collection.concurrent.TrieMap
 
-class OperationRepository {
-  private[this] val map: TrieMap[OperationId, Operation] = TrieMap.empty[OperationId, Operation]
+class OperationRepository(val map: TrieMap[OperationId, Operation] = TrieMap.empty[OperationId, Operation]) {
 
   def getOperation(operationId: OperationId): Option[Operation] = map.get(operationId)
 

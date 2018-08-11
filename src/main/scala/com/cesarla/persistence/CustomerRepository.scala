@@ -4,9 +4,10 @@ import com.cesarla.models.{Customer, CustomerId}
 
 import scala.collection.concurrent.TrieMap
 
-class CustomerRepository {
-  private[this] val customersById: TrieMap[CustomerId, Customer] = TrieMap.empty[CustomerId, Customer]
-  private[this] val customersByEmail: TrieMap[String, Customer] = TrieMap.empty[String, Customer]
+class CustomerRepository(
+    customersById: TrieMap[CustomerId, Customer] = TrieMap.empty[CustomerId, Customer],
+    customersByEmail: TrieMap[String, Customer] = TrieMap.empty[String, Customer]
+) {
 
   def getCustomer(customerId: CustomerId): Option[Customer] = customersById.get(customerId)
 

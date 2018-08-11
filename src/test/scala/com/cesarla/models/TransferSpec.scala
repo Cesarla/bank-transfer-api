@@ -9,22 +9,21 @@ import org.scalatest.{Matchers, WordSpec}
 import play.api.libs.json.{JsValue, Json}
 
 class TransferSpec extends WordSpec with Matchers with PlayJsonSupport with Fixtures {
-  implicit val tbg:TimeBasedGenerator = Generators.timeBasedGenerator()
+  implicit val tbg: TimeBasedGenerator = Generators.timeBasedGenerator()
   "Transfer" should {
 
     "serialize" in {
       val json: JsValue = Json.toJson(transferFixture)
-      (json \ "operation_id").as[OperationId] should === (transferFixture.operationId)
-      (json \ "source_id").as[AccountId] should === (transferFixture.sourceId)
-      (json \ "target_id").as[AccountId] should === (transferFixture.targetId)
-      (json \ "money").as[Money] should === (transferFixture.money)
-      (json \ "created_at").as[Instant] should === (transferFixture.createdAt)
-      (json \ "status").as[OperationStatus] should === (transferFixture.status)
+      (json \ "operation_id").as[OperationId] should ===(transferFixture.operationId)
+      (json \ "source_id").as[AccountId] should ===(transferFixture.sourceId)
+      (json \ "target_id").as[AccountId] should ===(transferFixture.targetId)
+      (json \ "money").as[Money] should ===(transferFixture.money)
+      (json \ "created_at").as[Instant] should ===(transferFixture.createdAt)
+      (json \ "status").as[OperationStatus] should ===(transferFixture.status)
     }
 
     "deserialize" in {
-      val json: JsValue = Json.parse(
-        """
+      val json: JsValue = Json.parse("""
           |{
           |   "operation_id": "3a5aaf3c-0c31-425b-ac09-d0887d3ae2ba",
           |   "source_id": "3983a173-b4a5-4c22-ac34-288fcc095fa7",
@@ -36,7 +35,7 @@ class TransferSpec extends WordSpec with Matchers with PlayJsonSupport with Fixt
           |   "status": "SUCCESSFUL"
           |}
         """.stripMargin)
-      json.as[Transfer] should === (transferFixture)
+      json.as[Transfer] should ===(transferFixture)
     }
   }
 }

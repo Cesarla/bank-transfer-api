@@ -4,9 +4,8 @@ import java.time.Instant
 
 import com.cesarla.utils.JsonFormatting
 import com.fasterxml.uuid.{NoArgGenerator => UUID1Generator}
-import play.api.libs.json.Json
-import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.libs.json.{Json, _}
 
 sealed trait Operation {
   val operationId: OperationId

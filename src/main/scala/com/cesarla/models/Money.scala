@@ -1,8 +1,8 @@
 package com.cesarla.models
 
 import com.cesarla.utils.JsonFormatting
-import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.libs.json._
 
 final case class Money(total: BigDecimal, currency: String) {
   def unary_- : Money = this.copy(-total)

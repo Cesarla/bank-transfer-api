@@ -24,7 +24,8 @@ trait Fixtures {
   lazy val operationIdFixture: OperationId = OperationId(UUID.fromString("3a5aaf3c-0c31-425b-ac09-d0887d3ae2ba"))
 
   lazy val moneyFixture = Money(
-    total = 42, currency = "EUR"
+    total = 42,
+    currency = "EUR"
   )
 
   lazy val transferFixture: Transfer = Transfer(
@@ -53,10 +54,15 @@ trait Fixtures {
   )
 
   lazy val snapshotFixture: Snapshot = Snapshot(
-    accountId1Fixture, moneyFixture, Instant.EPOCH
+    accountId1Fixture,
+    moneyFixture,
+    Instant.EPOCH
   )
 
   lazy val recordFixture: Record = Record(
-    accountId1Fixture, moneyFixture, Instant.EPOCH, Some(operationIdFixture)
+    accountId1Fixture,
+    moneyFixture,
+    Instant.EPOCH,
+    Some(operationIdFixture)
   )
 }

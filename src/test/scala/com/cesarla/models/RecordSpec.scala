@@ -17,8 +17,7 @@ class RecordSpec extends WordSpec with Matchers with PlayJsonSupport with Fixtur
     }
 
     "deserialize" in {
-      val json: JsValue = Json.parse(
-        """
+      val json: JsValue = Json.parse("""
           |{
           |   "account_id": "3983a173-b4a5-4c22-ac34-288fcc095fa7",
           |   "balance": {
@@ -28,7 +27,7 @@ class RecordSpec extends WordSpec with Matchers with PlayJsonSupport with Fixtur
           |   "operation_id": "3a5aaf3c-0c31-425b-ac09-d0887d3ae2ba"
           |}
         """.stripMargin)
-      json.as[Record] should === (recordFixture)
+      json.as[Record] should ===(recordFixture)
     }
   }
 }

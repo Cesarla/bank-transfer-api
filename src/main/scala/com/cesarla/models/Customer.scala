@@ -2,9 +2,8 @@ package com.cesarla.models
 
 import com.cesarla.utils.JsonFormatting
 import com.fasterxml.uuid.{NoArgGenerator => UUID1Generator}
-import play.api.libs.json.{JsPath, Reads}
-import play.api.libs.json.Json
 import play.api.libs.functional.syntax._
+import play.api.libs.json.{JsPath, Json, Reads}
 
 final case class Customer(id: CustomerId,
                           email: String,

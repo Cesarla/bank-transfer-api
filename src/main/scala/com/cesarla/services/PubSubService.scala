@@ -2,8 +2,8 @@ package com.cesarla.services
 
 import java.util.concurrent.LinkedBlockingQueue
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class PubSubService[T](handler: T => Unit) {
   private[this] val queue = new LinkedBlockingQueue[T]()

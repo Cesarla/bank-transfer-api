@@ -12,7 +12,7 @@ class LedgerSpec extends WordSpec with Matchers with PlayJsonSupport with Fixtur
   "Ledger" can {
     "storeRecord" should {
       "with records stored" in {
-        val log = TrieMap(accountId1Fixture->List(recordFixture))
+        val log = TrieMap(accountId1Fixture -> List(recordFixture))
         val ledger = new Ledger(log)
         ledger.storeRecord(accountId1Fixture, recordFixture)
         log.getOrElse(accountId1Fixture, TrieMap.empty[AccountId, List[Record]]).size should ===(2)
@@ -28,7 +28,7 @@ class LedgerSpec extends WordSpec with Matchers with PlayJsonSupport with Fixtur
 
     "getRecords" should {
       "with records stored" in {
-        val ledger = new Ledger(TrieMap(accountId1Fixture->List(recordFixture)))
+        val ledger = new Ledger(TrieMap(accountId1Fixture -> List(recordFixture)))
         ledger.getRecords(accountId1Fixture).isEmpty should ===(false)
       }
 
@@ -40,8 +40,9 @@ class LedgerSpec extends WordSpec with Matchers with PlayJsonSupport with Fixtur
 
     "replayAccount" should {
       "with records stored" in {
-        val ledger = new Ledger(TrieMap(accountId1Fixture->List(recordFixture)))
-        ledger.replayAccount(accountId1Fixture) should ===(Snapshot(accountId1Fixture, recordFixture.balance, Instant.EPOCH))
+        val ledger = new Ledger(TrieMap(accountId1Fixture -> List(recordFixture)))
+        ledger.replayAccount(accountId1Fixture) should ===(
+          Snapshot(accountId1Fixture, recordFixture.balance, Instant.EPOCH))
       }
 
       "with no records stored" in {
