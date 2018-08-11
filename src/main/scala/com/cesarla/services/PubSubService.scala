@@ -1,24 +1,30 @@
 package com.cesarla.services
 
-import java.util.concurrent.LinkedBlockingQueue
+import java.util.Comparator
+import java.util.concurrent.{Executors, PriorityBlockingQueue}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import com.cesarla.models.Operation
 
-class PubSubService[T](handler: T => Unit) {
-  private[this] val queue = new LinkedBlockingQueue[T]()
+class PubSubService(handler: Operation => Unit) {
+  private[this] val queue: PriorityBlockingQueue[Operation] = new PriorityBlockingQueue[Operation](
+    11, Comparator.comparingLong[Operation](_.operationId.value.timestamp()))
 
-  Future {
-    while (!Thread.currentThread.isInterrupted) {
-      try {
-        handler(queue.take())
-      } catch {
-        case _: InterruptedException => ()
+  private[this] val pool = Executors.newFixedThreadPool(1)
+
+  pool.submit(
+    new Runnable {
+      override def run(): Unit = {
+        while (!Thread.currentThread.isInterrupted) {
+          try {
+            handler(queue.take())
+          } catch {
+            case _: InterruptedException => ()
+          }
+        }
       }
-    }
-  }
+    })
 
-  def publish(t: T): Unit = {
+  def publish(t: Operation): Unit = {
     queue.put(t)
   }
 }
