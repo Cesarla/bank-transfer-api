@@ -105,14 +105,14 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
         (mockLedger.getRecords(_: AccountId)).expects(*).returning(List(recordFixture)).once()
         (mockLedger.replayAccount(_: AccountId)).expects(*).returning(snapshotFixture).once()
 
-        val Right(snapshot) = Await.result(ledgerService.computeBalance(accountId1Fixture), 1.second)
+        val Right(snapshot) = ledgerService.computeBalance(accountId1Fixture)
         snapshot should ===(snapshotFixture)
       }
 
       "with no records" in new WithMocks {
         (mockLedger.getRecords(_: AccountId)).expects(*).returning(List.empty[Record]).once()
 
-        val Left(problem) = Await.result(ledgerService.computeBalance(accountId1Fixture), 1.second)
+        val Left(problem) = ledgerService.computeBalance(accountId1Fixture)
         problem.status should ===(StatusCodes.NotFound)
       }
     }

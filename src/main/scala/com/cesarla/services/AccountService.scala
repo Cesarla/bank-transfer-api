@@ -10,7 +10,7 @@ import scala.concurrent.Future
 
 class AccountService(customerRepository: CustomerRepository, ledgerService: LedgerService)(implicit clock: Clock,
                                                                                            tbg: UUID1Generator) {
-  def readAccount(accountId: AccountId): Future[Either[Problem, Snapshot]] = ledgerService.computeBalance(accountId)
+  def readAccount(accountId: AccountId): Either[Problem, Snapshot] = ledgerService.computeBalance(accountId)
 
   def createAccount(customerId: CustomerId, currency: String): Future[Either[Problem, AccountId]] =
     Future.successful {
@@ -33,4 +33,6 @@ class AccountService(customerRepository: CustomerRepository, ledgerService: Ledg
         }
         .getOrElse(Left(Problems.NotFound(s"Customer $customerId not found")))
     }
+
+  def existAccount(accountId: AccountId):Boolean = ledgerService.computeBalance(accountId).isRight
 }

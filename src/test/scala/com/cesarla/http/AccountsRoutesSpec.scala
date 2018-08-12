@@ -1,9 +1,11 @@
 package com.cesarla.http
 
+import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.model._
+import akka.http.scaladsl.server.Directives.pathPrefix
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import akka.util.ByteString
+import akka.util.{ByteString, Timeout}
 import com.cesarla.data.Fixtures
 import com.cesarla.models._
 import com.cesarla.services.{AccountService, CustomerService, LedgerService}
@@ -15,8 +17,9 @@ import org.scalatest.{Matchers, WordSpec}
 
 import scala.concurrent.Future
 import scala.reflect.ClassTag
+import scala.concurrent.duration._
 
-class BankRoutesSpec
+class AccountsRoutesSpec
     extends WordSpec
     with Matchers
     with ScalaFutures
@@ -24,123 +27,25 @@ class BankRoutesSpec
     with PlayJsonSupport
     with Fixtures
     with MockFactory
-    with BankRoutes {
+    with AccountsRoutes {
 
-  lazy val routes: Route = bankTransferRoutes
+  val log: LoggingAdapter = Logging(system, classOf[AccountsRoutesSpec])
+  lazy val routes: Route = pathPrefix("v1") {
+    accountsRoutes
+  }
+  override implicit lazy val timeout: Timeout = Timeout(5.seconds)
   override implicit val uuid1Generator: UUID1Generator = mock[UUID1Generator]
   override val accountService: AccountService = mock[AccountService]
   override val customerService: CustomerService = mock[CustomerService]
   override val ledgerService: LedgerService = mock[LedgerService]
 
-  "BankRoutesSpec" when {
-    "GET a customer" should {
-      "return the customer if present" in {
-        (() => uuid1Generator.generate()).expects().returning(customerIdFixture.value).once()
-        (customerService
-          .getCustomer(_: CustomerId))
-          .expects(customerIdFixture)
-          .returning(Future.successful(Right(customerFixture)))
-          .once()
-        val request = Get(s"/v1/customers/$customerIdFixture")
-        request ~> routes ~> check {
-          status should ===(StatusCodes.OK)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Customer] should ===(customerFixture)
-        }
-      }
-
-      "return 404 if no present" in {
-        val problem = Problems.NotFound("Not Found")
-        (customerService
-          .getCustomer(_: CustomerId))
-          .expects(customerIdFixture)
-          .returning(Future.successful(Left(problem)))
-          .once()
-        val request = Get(s"/v1/customers/$customerIdFixture")
-        request ~> routes ~> check {
-          status should ===(StatusCodes.NotFound)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Problem] should ===(problem)
-        }
-      }
-    }
-
-    "POST a customer" should {
-      "create a customer" in {
-        (() => uuid1Generator.generate()).expects().returning(customerIdFixture.value).twice()
-        (customerService
-          .createCustomer(_: String))
-          .expects(*)
-          .returning(Future.successful(Right(customerFixture)))
-          .once()
-        val request = Post("/v1/customers").withEntity(
-          HttpEntity(MediaTypes.`application/json`,
-                     ByteString("""
-            |{
-            |  "email": "bob@example.com"
-            |}
-          """.stripMargin)))
-        request ~> routes ~> check {
-          status should ===(StatusCodes.OK)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Customer] should ===(customerFixture)
-        }
-      }
-      "returning 409 if the email is already in use" in {
-        val problem = Problems.Conflict("Email already taken")
-        (() => uuid1Generator.generate()).expects().returning(customerIdFixture.value)
-        (customerService.createCustomer(_: String)).expects(*).returning(Future.successful(Left(problem))).once()
-        val request = Post("/v1/customers/").withEntity(
-          HttpEntity(
-            MediaTypes.`application/json`,
-            ByteString("""
-                         |{
-                         |  "email": "bob@example.com"
-                         |}
-                       """.stripMargin)
-          ))
-        request ~> routes ~> check {
-          status should ===(StatusCodes.Conflict)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Problem] should ===(problem)
-        }
-      }
-    }
-
-    "POST an account" should {
-      "create a new  account" in {
-        (accountService
-          .createAccount(_: CustomerId, _: String))
-          .expects(*, *)
-          .returning(Future.successful(Right(accountId1Fixture)))
-          .once()
-        val request = Post(s"/v1/customers/$customerIdFixture/accounts")
-        request ~> routes ~> check {
-          status should ===(StatusCodes.NoContent)
-        }
-      }
-      "returning 409 if the email is already in use" in {
-        val problem = Problems.Conflict("Email already taken")
-        (accountService
-          .createAccount(_: CustomerId, _: String))
-          .expects(*, *)
-          .returning(Future.successful(Left(problem)))
-          .once()
-        val request = Post(s"/v1/customers/$customerIdFixture/accounts")
-        request ~> routes ~> check {
-          status should ===(StatusCodes.Conflict)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Problem] should ===(problem)
-        }
-      }
-    }
-
+  "AccountsRoutes" can {
     "GET an account" should {
       "get the requested account" in {
         (accountService
           .readAccount(_: AccountId))
           .expects(accountId1Fixture)
-          .returning(Future.successful(Right(snapshotFixture)))
+          .returning(Right(snapshotFixture))
           .once()
         val request = Get(s"/v1/accounts/$accountId1Fixture")
         request ~> routes ~> check {
@@ -154,7 +59,7 @@ class BankRoutesSpec
         (accountService
           .readAccount(_: AccountId))
           .expects(accountId1Fixture)
-          .returning(Future.successful(Left(problem)))
+          .returning(Left(problem))
           .once()
         val request = Get(s"/v1/accounts/$accountId1Fixture")
         request ~> routes ~> check {
@@ -171,7 +76,8 @@ class BankRoutesSpec
         (ledgerService
           .dispatchOperation(_: Deposit)(_: ClassTag[Deposit]))
           .expects(*, *)
-          .returning(Future.successful(Right(depositFixture)))
+          .returning(Future.successful(Right(depositFixture))).once()
+        (accountService.existAccount(_:AccountId)).expects(withdrawalFixture.accountId).returning(true).once()
         val request = Post(s"/v1/accounts/$accountId1Fixture/deposits").withEntity(HttpEntity(
           MediaTypes.`application/json`,
           ByteString("""
@@ -188,7 +94,36 @@ class BankRoutesSpec
         }
       }
 
+      "return 404 if the account does not exists" in {
+        (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).never()
+        (ledgerService
+          .dispatchOperation(_: Deposit)(_: ClassTag[Deposit]))
+          .expects(*, *)
+          .returning(Future.successful(Right(depositFixture))).never()
+        (accountService.existAccount(_:AccountId)).expects(withdrawalFixture.accountId).returning(false).once()
+        val request = Post(s"/v1/accounts/$accountId1Fixture/deposits").withEntity(HttpEntity(
+          MediaTypes.`application/json`,
+          ByteString("""
+                       |{
+                       |  "total": "42.0000",
+                       |  "currency": "EUR"
+                       |}
+                     """.stripMargin)
+        ))
+        request ~> routes ~> check {
+          status should ===(StatusCodes.NotFound)
+          contentType should ===(ContentTypes.`application/json`)
+          responseAs[Problem] should ===(Problems.NotFound(s"Account ${withdrawalFixture.accountId} does not exists"))
+        }
+      }
+
       "return 400 if the amount is negative" in {
+        (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).never()
+        (ledgerService
+          .dispatchOperation(_: Deposit)(_: ClassTag[Deposit]))
+          .expects(*, *)
+          .returning(Future.successful(Right(depositFixture))).never()
+        (accountService.existAccount(_:AccountId)).expects(withdrawalFixture.accountId).returning(true).never()
         val request = Post(s"/v1/accounts/$accountId1Fixture/deposits").withEntity(HttpEntity(
           MediaTypes.`application/json`,
           ByteString("""
@@ -212,7 +147,8 @@ class BankRoutesSpec
         (ledgerService
           .dispatchOperation(_: Withdrawal)(_: ClassTag[Withdrawal]))
           .expects(*, *)
-          .returning(Future.successful(Right(withdrawalFixture)))
+          .returning(Future.successful(Right(withdrawalFixture))).once()
+        (accountService.existAccount(_:AccountId)).expects(withdrawalFixture.accountId).returning(true).once()
         val request = Post(s"/v1/accounts/$accountId1Fixture/withdrawals").withEntity(HttpEntity(
           MediaTypes.`application/json`,
           ByteString("""
@@ -229,7 +165,35 @@ class BankRoutesSpec
         }
       }
 
+      "return 404 if the account does not exist" in {
+        (() => uuid1Generator.generate()).expects().returning(withdrawalFixture.operationId.value).never()
+        (ledgerService
+          .dispatchOperation(_: Withdrawal)(_: ClassTag[Withdrawal]))
+          .expects(*, *)
+          .returning(Future.successful(Right(withdrawalFixture))).never()
+        (accountService.existAccount(_:AccountId)).expects(withdrawalFixture.accountId).returning(false).once()
+        val request = Post(s"/v1/accounts/$accountId1Fixture/withdrawals").withEntity(HttpEntity(
+          MediaTypes.`application/json`,
+          ByteString("""
+                       |{
+                       |  "total": "42.0000",
+                       |  "currency": "EUR"
+                       |}
+                     """.stripMargin)
+        ))
+        request ~> routes ~> check {
+          status should ===(StatusCodes.NotFound)
+          contentType should ===(ContentTypes.`application/json`)
+          responseAs[Problem] should ===(Problems.NotFound(s"Account ${withdrawalFixture.accountId} does not exists"))
+        }
+      }
+
       "return 400 if the amount is negative" in {
+        (() => uuid1Generator.generate()).expects().returning(withdrawalFixture.operationId.value).never()
+        (ledgerService
+          .dispatchOperation(_: Withdrawal)(_: ClassTag[Withdrawal]))
+          .expects(*, *)
+          .returning(Future.successful(Right(withdrawalFixture))).never()
         val request = Post(s"/v1/accounts/$accountId1Fixture/withdrawals").withEntity(HttpEntity(
           MediaTypes.`application/json`,
           ByteString("""
@@ -256,6 +220,8 @@ class BankRoutesSpec
         .expects(*, *)
         .returning(Future.successful(Right(transferFixture)))
         .once()
+      (accountService.existAccount(_:AccountId)).expects(transferFixture.sourceId).returning(true).once()
+      (accountService.existAccount(_:AccountId)).expects(transferFixture.targetId).returning(true).once()
       val request = Post(s"/v1/accounts/$accountId1Fixture/transfers").withEntity(
         HttpEntity(
           MediaTypes.`application/json`,
@@ -277,6 +243,67 @@ class BankRoutesSpec
       }
     }
 
+    "return 404 if the source account does not exist" in {
+      (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).once()
+      (ledgerService
+        .dispatchOperation(_: Transfer)(_: ClassTag[Transfer]))
+        .expects(*, *)
+        .returning(Future.successful(Right(transferFixture)))
+        .never()
+      (accountService.existAccount(_:AccountId)).expects(transferFixture.sourceId).returning(false).once()
+      (accountService.existAccount(_:AccountId)).expects(transferFixture.targetId).returning(true).never()
+      val request = Post(s"/v1/accounts/$accountId1Fixture/transfers").withEntity(
+        HttpEntity(
+          MediaTypes.`application/json`,
+          ByteString("""
+                       |{
+                       |  "source_id": "3983a173-b4a5-4c22-ac34-288fcc095fa7",
+                       |  "target_id": "21315d41-9327-4787-a135-b33d4f842647",
+                       |  "money": {
+                       |    "total": "42.0000",
+                       |    "currency": "EUR"
+                       |   }
+                       |}
+                     """.stripMargin)
+        ))
+      request ~> routes ~> check {
+        status should ===(StatusCodes.NotFound)
+        contentType should ===(ContentTypes.`application/json`)
+        responseAs[Problem] should ===(Problems.NotFound(s"Source account ${transferFixture.sourceId} does not exists"))
+      }
+    }
+
+    "return 400 if the target account does not exist" in {
+      (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).once()
+      (ledgerService
+        .dispatchOperation(_: Transfer)(_: ClassTag[Transfer]))
+        .expects(*, *)
+        .returning(Future.successful(Right(transferFixture)))
+        .never()
+      (accountService.existAccount(_:AccountId)).expects(transferFixture.sourceId).returning(true).once()
+      (accountService.existAccount(_:AccountId)).expects(transferFixture.targetId).returning(false).once()
+      val request = Post(s"/v1/accounts/$accountId1Fixture/transfers").withEntity(
+        HttpEntity(
+          MediaTypes.`application/json`,
+          ByteString("""
+                       |{
+                       |  "source_id": "3983a173-b4a5-4c22-ac34-288fcc095fa7",
+                       |  "target_id": "21315d41-9327-4787-a135-b33d4f842647",
+                       |  "money": {
+                       |    "total": "42.0000",
+                       |    "currency": "EUR"
+                       |   }
+                       |}
+                     """.stripMargin)
+        ))
+      request ~> routes ~> check {
+        status should ===(StatusCodes.NotFound)
+        contentType should ===(ContentTypes.`application/json`)
+        responseAs[Problem] should ===(
+          Problems.NotFound(s"Target account ${transferFixture.targetId} does not exists"))
+      }
+    }
+
     "return 400 if the source_id and target_id matches" in {
       (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).once()
       (ledgerService
@@ -284,6 +311,8 @@ class BankRoutesSpec
         .expects(*, *)
         .returning(Future.successful(Right(transferFixture)))
         .never()
+      (accountService.existAccount(_:AccountId)).expects(transferFixture.sourceId).returning(true).never()
+      (accountService.existAccount(_:AccountId)).expects(transferFixture.targetId).returning(true).never()
       val request = Post(s"/v1/accounts/$accountId1Fixture/transfers").withEntity(
         HttpEntity(
           MediaTypes.`application/json`,

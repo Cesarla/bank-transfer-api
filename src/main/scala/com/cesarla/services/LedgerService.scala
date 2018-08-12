@@ -55,7 +55,7 @@ class LedgerService(ledger: Ledger, operationRepository: OperationRepository, sh
     }
   }
 
-  def computeBalance(accountId: AccountId): Future[Either[Problem, Snapshot]] = Future.successful {
+  def computeBalance(accountId: AccountId): Either[Problem, Snapshot] = {
     if (ledger.getRecords(accountId).isEmpty) {
       Left(Problems.NotFound(s"Account $accountId not found"))
     } else Right(ledger.replayAccount(accountId))
