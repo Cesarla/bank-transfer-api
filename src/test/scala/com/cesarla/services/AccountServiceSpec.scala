@@ -55,7 +55,8 @@ class AccountServiceSpec extends WordSpec with Matchers with PlayJsonSupport wit
     val mockLedgerService: LedgerService = mock[LedgerService]
     val mockTimeBasedGenerator: UUID1Generator = mock[UUID1Generator]
     val mockClock: Clock = Clock.systemUTC()
-    val accountService = new AccountService(mockCustomerRepository, mockLedgerService)(mockClock, mockTimeBasedGenerator)
+    val accountService =
+      new AccountService(mockCustomerRepository, mockLedgerService)(mockClock, mockTimeBasedGenerator)
   }
 
 }
