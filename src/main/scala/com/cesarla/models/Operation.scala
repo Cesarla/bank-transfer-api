@@ -75,7 +75,7 @@ final case class Withdrawal(operationId: OperationId,
 
 object Withdrawal extends JsonFormatting {
   implicit val jsonWrites: OWrites[Withdrawal] = Json.writes[Withdrawal]
-  implicit def jsonReads(implicit clock:Clock, ug: UUID1Generator): Reads[Withdrawal] =
+  implicit def jsonReads(implicit clock: Clock, ug: UUID1Generator): Reads[Withdrawal] =
     (
       (JsPath \ "operation_id").readWithDefault(OperationId.generate) and
         (JsPath \ "account_id").read[AccountId] and

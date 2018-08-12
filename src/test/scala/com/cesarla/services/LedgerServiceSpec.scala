@@ -120,13 +120,13 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
     trait WithMocks {
       val mockLedger: Ledger = mock[Ledger]
       val mockOperationRepository: OperationRepository = mock[OperationRepository]
-      val ledgerService: LedgerService = new LedgerService(mockLedger, mockOperationRepository)
+      val ledgerService: LedgerService = new LedgerService(mockLedger, mockOperationRepository, 10)
 
     }
 
     trait WithStubs {
       val mockLedger: Ledger = stub[Ledger]
-      val ledgerService: LedgerService = new LedgerService(mockLedger, new OperationRepository())
+      val ledgerService: LedgerService = new LedgerService(mockLedger, new OperationRepository(), 10)
     }
 
   }

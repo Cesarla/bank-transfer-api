@@ -8,8 +8,8 @@ import com.fasterxml.uuid.{NoArgGenerator => UUID1Generator}
 
 import scala.concurrent.Future
 
-class AccountService(customerRepository: CustomerRepository, ledgerService: LedgerService)(
-    implicit clock:Clock, tbg: UUID1Generator) {
+class AccountService(customerRepository: CustomerRepository, ledgerService: LedgerService)(implicit clock: Clock,
+                                                                                           tbg: UUID1Generator) {
   def readAccount(accountId: AccountId): Future[Either[Problem, Snapshot]] = ledgerService.computeBalance(accountId)
 
   def createAccount(customerId: CustomerId, currency: String): Future[Either[Problem, AccountId]] =
