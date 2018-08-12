@@ -4,15 +4,14 @@ import akka.actor.ActorSystem
 import akka.event.LoggingAdapter
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.headers.Location
-import akka.http.scaladsl.server.Directives.{as, concat, entity, get, onSuccess, pathPrefix, post, respondWithHeaders}
+import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.util.Timeout
 import com.cesarla.models.{Customer, CustomerId, Problem}
-import com.cesarla.services.{AccountService, CustomerService, LedgerService}
-import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
+import com.cesarla.services.{AccountService, CustomerService}
 import com.fasterxml.uuid.{NoArgGenerator => UUID1Generator}
-import akka.http.scaladsl.server.Directives._
+import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
 
 trait CustomersRoutes extends PlayJsonSupport {
 
@@ -27,8 +26,6 @@ trait CustomersRoutes extends PlayJsonSupport {
   val accountService: AccountService
 
   val customerService: CustomerService
-
-  val ledgerService: LedgerService
 
   val customerRoutes: Route = pathPrefix("customers") {
     concat(
@@ -45,8 +42,10 @@ trait CustomersRoutes extends PlayJsonSupport {
           post {
             onSuccess(accountService.createAccount(CustomerId.valueOf(customerId), "EUR")) {
               case Right(accountId) =>
-                respondWithHeaders(Location(accountId.value.toString)) {
-                  complete(StatusCodes.NoContent)
+                extractHost { host =>
+                  respondWithHeaders(Location(s"http://$host:8080/v1/accounts/${accountId.value}")) {
+                    complete(StatusCodes.Created)
+                  }
                 }
               case Left(problem: Problem) =>
                 log.info("Account failed to be created: {}", problem)

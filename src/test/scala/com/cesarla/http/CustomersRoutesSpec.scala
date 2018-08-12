@@ -8,7 +8,7 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.util.{ByteString, Timeout}
 import com.cesarla.data.Fixtures
 import com.cesarla.models._
-import com.cesarla.services.{AccountService, CustomerService, LedgerService}
+import com.cesarla.services.{AccountService, CustomerService}
 import com.fasterxml.uuid.{NoArgGenerator => UUID1Generator}
 import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
 import org.scalamock.scalatest.MockFactory
@@ -36,7 +36,6 @@ class CustomersRoutesSpec
   override implicit val uuid1Generator: UUID1Generator = mock[UUID1Generator]
   override val accountService: AccountService = mock[AccountService]
   override val customerService: CustomerService = mock[CustomerService]
-  override val ledgerService: LedgerService = mock[LedgerService]
 
   "CustomersRoutes" when {
     "GET a customer" should {
@@ -122,7 +121,8 @@ class CustomersRoutesSpec
           .once()
         val request = Post(s"/v1/customers/$customerIdFixture/accounts")
         request ~> routes ~> check {
-          status should ===(StatusCodes.NoContent)
+          status should ===(StatusCodes.Created)
+          status should ===(StatusCodes.Created)
         }
       }
       "returning 409 if the email is already in use" in {

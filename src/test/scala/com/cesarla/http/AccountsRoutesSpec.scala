@@ -10,7 +10,7 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.util.{ByteString, Timeout}
 import com.cesarla.data.Fixtures
 import com.cesarla.models._
-import com.cesarla.services.{AccountService, CustomerService, LedgerService}
+import com.cesarla.services.{AccountService, LedgerService}
 import com.fasterxml.uuid.{NoArgGenerator => UUID1Generator}
 import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
 import org.scalamock.scalatest.MockFactory
@@ -38,7 +38,6 @@ class AccountsRoutesSpec
   override implicit lazy val timeout: Timeout = Timeout(5.seconds)
   override implicit val uuid1Generator: UUID1Generator = mock[UUID1Generator]
   override val accountService: AccountService = mock[AccountService]
-  override val customerService: CustomerService = mock[CustomerService]
   override val ledgerService: LedgerService = mock[LedgerService]
   override val clock: Clock = Clock.systemUTC()
 

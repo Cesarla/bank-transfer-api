@@ -10,7 +10,7 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.util.Timeout
 import com.cesarla.models.{Withdrawal, _}
-import com.cesarla.services.{AccountService, CustomerService, LedgerService}
+import com.cesarla.services.{AccountService, LedgerService}
 import com.fasterxml.uuid.{NoArgGenerator => UUID1Generator}
 import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
 
@@ -29,8 +29,6 @@ trait AccountsRoutes extends PlayJsonSupport {
   val log: LoggingAdapter
 
   val accountService: AccountService
-
-  val customerService: CustomerService
 
   val ledgerService: LedgerService
 
@@ -59,10 +57,15 @@ trait AccountsRoutes extends PlayJsonSupport {
                   } else if (!accountService.existAccount(accountId)) {
                     complete(Problems.NotFound(s"Source account $accountId does not exists").asResult)
                   } else if (!accountService.existAccount(transferRequest.targetId)) {
-                    complete(Problems.NotFound(s"Target account ${ transferRequest.targetId} does not exists").asResult)
+                    complete(Problems.NotFound(s"Target account ${transferRequest.targetId} does not exists").asResult)
                   } else {
-                    onSuccess(ledgerService.dispatchOperation(
-                      Transfer(OperationId.generate, accountId, transferRequest.targetId, transferRequest.money, Instant.now(clock)))) {
+                    onSuccess(
+                      ledgerService.dispatchOperation(
+                        Transfer(OperationId.generate,
+                                 accountId,
+                                 transferRequest.targetId,
+                                 transferRequest.money,
+                                 Instant.now(clock)))) {
                       case Right(transfer) => complete((StatusCodes.Accepted, transfer))
                       case Left(problem) =>
                         log.info("Transfer failed to be created: {}", problem)

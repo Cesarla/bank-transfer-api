@@ -32,7 +32,7 @@ final case class Deposit(operationId: OperationId,
                          accountId: AccountId,
                          money: Money,
                          createdAt: Instant,
-                         status: OperationStatus= OperationStatus.Progress,
+                         status: OperationStatus = OperationStatus.Progress,
                          detail: Option[String] = None)
     extends Operation {
   def asRecord: Record = Record(accountId, money, createdAt, Some(operationId))
@@ -46,7 +46,7 @@ final case class Withdrawal(operationId: OperationId,
                             accountId: AccountId,
                             money: Money,
                             createdAt: Instant,
-                            status: OperationStatus= OperationStatus.Progress,
+                            status: OperationStatus = OperationStatus.Progress,
                             detail: Option[String] = None)
     extends Operation {
   def asRecord: Record = Record(accountId, -money, createdAt, Some(operationId))

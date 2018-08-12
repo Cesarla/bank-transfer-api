@@ -10,7 +10,7 @@ import akka.http.scaladsl.server.directives.PathDirectives.path
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.util.Timeout
 import com.cesarla.models._
-import com.cesarla.services.{AccountService, CustomerService, LedgerService}
+import com.cesarla.services.LedgerService
 import com.fasterxml.uuid.{NoArgGenerator => UUID1Generator}
 import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
 
@@ -25,10 +25,6 @@ trait OperationsRoutes extends PlayJsonSupport {
   implicit val timeout: Timeout
 
   val log: LoggingAdapter
-
-  val accountService: AccountService
-
-  val customerService: CustomerService
 
   val ledgerService: LedgerService
 

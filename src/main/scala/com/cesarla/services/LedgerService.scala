@@ -1,6 +1,5 @@
 package com.cesarla.services
 
-import akka.http.scaladsl.model.StatusCodes
 import com.cesarla.models.{Operation, _}
 import com.cesarla.persistence.{Ledger, OperationRepository}
 import com.google.common.hash.Hashing
@@ -9,11 +8,11 @@ import scala.collection.concurrent.TrieMap
 import scala.concurrent.Future
 import scala.reflect.ClassTag
 
-class LedgerService(ledger: Ledger, operationRepository: OperationRepository, shards: Int) {
+class LedgerService(ledger: Ledger, operationRepository: OperationRepository, partitions: Int) {
 
   private[this] val pubSubServices: TrieMap[Int, PubSubService] = {
     val trieMap = TrieMap.empty[Int, PubSubService]
-    (0 to shards).foreach(
+    (0 to partitions).foreach(
       i =>
         trieMap.update(
           i,
@@ -34,7 +33,7 @@ class LedgerService(ledger: Ledger, operationRepository: OperationRepository, sh
     }
 
     // Using .head since pubSubServices is not mutated after instantiation
-    pubSubServices.get(Hashing.consistentHash(accountId.hashCode().toLong, shards)).head
+    pubSubServices.get(Hashing.consistentHash(accountId.hashCode().toLong, partitions)).head
   }
 
   def dispatchOperation[T <: Operation](operation: T)(implicit tag: ClassTag[T]): Future[Either[Problem, T]] = {
@@ -43,7 +42,7 @@ class LedgerService(ledger: Ledger, operationRepository: OperationRepository, sh
       getPubSubService(operation).publish(operation)
       operationRepository.getOperation(operation.operationId) match {
         case Some(current: T) => Right(current)
-        case _                => Left(Problem("It should not happen", StatusCodes.InternalServerError))
+        case _                => Left(Problems.InternalServerError("It should not happen"))
       }
     }
   }
@@ -51,7 +50,7 @@ class LedgerService(ledger: Ledger, operationRepository: OperationRepository, sh
   def get[T](operationId: OperationId)(implicit tag: ClassTag[T]): Either[Problem, T] = {
     operationRepository.getOperation(operationId) match {
       case Some(operation: T) => Right(operation)
-      case _                  => Left(Problem(s"Operation $operationId not found", StatusCodes.NotFound))
+      case _                  => Left(Problems.NotFound(s"Operation $operationId not found"))
     }
   }
 
@@ -83,7 +82,7 @@ class LedgerService(ledger: Ledger, operationRepository: OperationRepository, sh
     } else {
       val deposit: Deposit = transfer.asDeposit
       ledger.storeRecord(transfer.sourceId, transfer.asRecord)
-      if (belongsToSameBucket(transfer.sourceId, transfer.targetId)) {
+      if (belongsToSamePartition(transfer.sourceId, transfer.targetId)) {
         processDeposit(deposit)
       } else {
         getPubSubService(deposit).publish(deposit)
@@ -91,8 +90,8 @@ class LedgerService(ledger: Ledger, operationRepository: OperationRepository, sh
     }
   }
 
-  private[this] def belongsToSameBucket(accountA: AccountId, accountB: AccountId): Boolean = {
-    Hashing.consistentHash(accountA.hashCode().toLong, shards) == Hashing.consistentHash(accountB.hashCode().toLong,
-                                                                                         shards)
+  private[this] def belongsToSamePartition(accountA: AccountId, accountB: AccountId): Boolean = {
+    Hashing.consistentHash(accountA.hashCode().toLong, partitions) == Hashing.consistentHash(accountB.hashCode().toLong,
+                                                                                             partitions)
   }
 }
