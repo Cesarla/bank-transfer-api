@@ -1,6 +1,6 @@
 package com.cesarla.http
 
-import java.time.Instant
+import java.time.{Clock, Instant}
 
 import akka.actor.ActorSystem
 import akka.event.LoggingAdapter
@@ -23,6 +23,8 @@ trait AccountsRoutes extends PlayJsonSupport {
   implicit def system: ActorSystem
 
   implicit val timeout: Timeout
+
+  val clock: Clock
 
   val log: LoggingAdapter
 
@@ -48,18 +50,19 @@ trait AccountsRoutes extends PlayJsonSupport {
         post {
           concat(
             pathPrefix("transfers") {
-              entity(as[Transfer]) {
-                transfer: Transfer =>
-                  if (transfer.money.total <= BigDecimal.valueOf(0)) {
+              entity(as[TransferRequest]) {
+                transferRequest: TransferRequest =>
+                  if (transferRequest.money.total <= BigDecimal.valueOf(0)) {
                     complete(Problems.BadRequest("Transfer must be positive").asResult)
-                  } else if (transfer.targetId == transfer.sourceId) {
+                  } else if (transferRequest.targetId == accountId) {
                     complete(Problems.BadRequest("Transfers sourceId and targetId must be different").asResult)
-                  } else if (!accountService.existAccount(transfer.sourceId)) {
-                    complete(Problems.NotFound(s"Source account ${transfer.sourceId} does not exists").asResult)
-                  } else if (!accountService.existAccount(transfer.targetId)) {
-                    complete(Problems.NotFound(s"Target account ${transfer.targetId} does not exists").asResult)
+                  } else if (!accountService.existAccount(accountId)) {
+                    complete(Problems.NotFound(s"Source account $accountId does not exists").asResult)
+                  } else if (!accountService.existAccount(transferRequest.targetId)) {
+                    complete(Problems.NotFound(s"Target account ${ transferRequest.targetId} does not exists").asResult)
                   } else {
-                    onSuccess(ledgerService.dispatchOperation(transfer)) {
+                    onSuccess(ledgerService.dispatchOperation(
+                      Transfer(OperationId.generate, accountId, transferRequest.targetId, transferRequest.money, Instant.now(clock)))) {
                       case Right(transfer) => complete((StatusCodes.Accepted, transfer))
                       case Left(problem) =>
                         log.info("Transfer failed to be created: {}", problem)

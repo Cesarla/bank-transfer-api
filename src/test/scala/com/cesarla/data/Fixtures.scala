@@ -28,6 +28,10 @@ trait Fixtures {
     currency = "EUR"
   )
 
+  lazy val transferRequest: TransferRequest = TransferRequest(
+    accountId2Fixture, moneyFixture
+  )
+
   lazy val transferFixture: Transfer = Transfer(
     operationIdFixture,
     accountId1Fixture,
@@ -65,4 +69,6 @@ trait Fixtures {
     Instant.EPOCH,
     Some(operationIdFixture)
   )
+
+  lazy val problemFixture: Problem = Problems.InternalServerError("Something went wrong")
 }

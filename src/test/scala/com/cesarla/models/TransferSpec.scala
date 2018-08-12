@@ -2,14 +2,11 @@ package com.cesarla.models
 import java.time.Instant
 
 import com.cesarla.data.Fixtures
-import com.fasterxml.uuid.Generators
-import com.fasterxml.uuid.impl.TimeBasedGenerator
 import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
 import org.scalatest.{Matchers, WordSpec}
 import play.api.libs.json.{JsValue, Json}
 
 class TransferSpec extends WordSpec with Matchers with PlayJsonSupport with Fixtures {
-  implicit val tbg: TimeBasedGenerator = Generators.timeBasedGenerator()
   "Transfer" should {
 
     "serialize" in {

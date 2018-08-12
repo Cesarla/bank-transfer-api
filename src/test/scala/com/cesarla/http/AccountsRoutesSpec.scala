@@ -1,5 +1,7 @@
 package com.cesarla.http
 
+import java.time.Clock
+
 import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives.pathPrefix
@@ -16,8 +18,8 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{Matchers, WordSpec}
 
 import scala.concurrent.Future
-import scala.reflect.ClassTag
 import scala.concurrent.duration._
+import scala.reflect.ClassTag
 
 class AccountsRoutesSpec
     extends WordSpec
@@ -38,6 +40,7 @@ class AccountsRoutesSpec
   override val accountService: AccountService = mock[AccountService]
   override val customerService: CustomerService = mock[CustomerService]
   override val ledgerService: LedgerService = mock[LedgerService]
+  override val clock: Clock = Clock.systemUTC()
 
   "AccountsRoutes" can {
     "GET an account" should {
@@ -72,7 +75,7 @@ class AccountsRoutesSpec
 
     "POST a deposit" should {
       "handle a valid deposit" in {
-        (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).twice()
+        (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).once()
         (ledgerService
           .dispatchOperation(_: Deposit)(_: ClassTag[Deposit]))
           .expects(*, *)
@@ -214,7 +217,7 @@ class AccountsRoutesSpec
 
   "POST a transfer" should {
     "submit a valid transfer" in {
-      (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).twice()
+      (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).once()
       (ledgerService
         .dispatchOperation(_: Transfer)(_: ClassTag[Transfer]))
         .expects(*, *)
@@ -244,7 +247,7 @@ class AccountsRoutesSpec
     }
 
     "return 404 if the source account does not exist" in {
-      (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).once()
+      (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).never()
       (ledgerService
         .dispatchOperation(_: Transfer)(_: ClassTag[Transfer]))
         .expects(*, *)
@@ -274,7 +277,7 @@ class AccountsRoutesSpec
     }
 
     "return 400 if the target account does not exist" in {
-      (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).once()
+      (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).never()
       (ledgerService
         .dispatchOperation(_: Transfer)(_: ClassTag[Transfer]))
         .expects(*, *)
@@ -305,7 +308,7 @@ class AccountsRoutesSpec
     }
 
     "return 400 if the source_id and target_id matches" in {
-      (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).once()
+      (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).never()
       (ledgerService
         .dispatchOperation(_: Transfer)(_: ClassTag[Transfer]))
         .expects(*, *)
@@ -335,7 +338,7 @@ class AccountsRoutesSpec
     }
 
     "return 400 if the amount is negative" in {
-      (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).once()
+      (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).never()
       (ledgerService
         .dispatchOperation(_: Transfer)(_: ClassTag[Transfer]))
         .expects(*, *)

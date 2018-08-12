@@ -4,17 +4,17 @@ import java.util.UUID
 import akka.actor.ActorSystem
 import akka.event.LoggingAdapter
 import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.PathDirectives.path
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.util.Timeout
 import com.cesarla.models._
 import com.cesarla.services.{AccountService, CustomerService, LedgerService}
-import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
 import com.fasterxml.uuid.{NoArgGenerator => UUID1Generator}
+import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
 
 import scala.concurrent.Future
-import akka.http.scaladsl.server.Directives._
 
 trait OperationsRoutes extends PlayJsonSupport {
 

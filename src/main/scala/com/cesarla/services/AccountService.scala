@@ -34,5 +34,5 @@ class AccountService(customerRepository: CustomerRepository, ledgerService: Ledg
         .getOrElse(Left(Problems.NotFound(s"Customer $customerId not found")))
     }
 
-  def existAccount(accountId: AccountId):Boolean = ledgerService.computeBalance(accountId).isRight
+  def existAccount(accountId: AccountId): Boolean = ledgerService.computeBalance(accountId).isRight
 }

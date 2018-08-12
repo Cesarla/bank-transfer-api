@@ -16,7 +16,6 @@ import com.fasterxml.uuid.{Generators, NoArgGenerator => UUID1Generator}
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
 import scala.concurrent.duration._
 
 object BankTransferServer extends App {
