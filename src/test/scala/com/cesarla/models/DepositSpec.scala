@@ -13,11 +13,11 @@ class DepositSpec extends WordSpec with Matchers with PlayJsonSupport with Fixtu
   "Deposit" should {
     "serialize" in {
       val json: JsValue = Json.toJson(depositFixture)
-      (json \ "operation_id").as[OperationId] should ===(depositFixture.operationId)
-      (json \ "account_id").as[AccountId] should ===(depositFixture.accountId)
-      (json \ "money").as[Money] should ===(depositFixture.money)
-      (json \ "created_at").as[Instant] should ===(depositFixture.createdAt)
-      (json \ "status").as[OperationStatus] should ===(depositFixture.status)
+      (json \ "operation_id").as[OperationId] shouldBe depositFixture.operationId
+      (json \ "account_id").as[AccountId] shouldBe depositFixture.accountId
+      (json \ "money").as[Money] shouldBe depositFixture.money
+      (json \ "created_at").as[Instant] shouldBe depositFixture.createdAt
+      (json \ "status").as[OperationStatus] shouldBe depositFixture.status
     }
 
     "deserialize" in {
@@ -32,7 +32,7 @@ class DepositSpec extends WordSpec with Matchers with PlayJsonSupport with Fixtu
           |   "status": "SUCCESSFUL"
           |}
         """.stripMargin)
-      json.as[Deposit] should ===(depositFixture)
+      json.as[Deposit] shouldBe depositFixture
     }
   }
 }

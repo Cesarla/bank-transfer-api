@@ -42,9 +42,9 @@ class OperationsRoutesSpec
         (ledgerService.get(_:OperationId)(_:ClassTag[Deposit])).expects(*,*).returning(Right(depositFixture)).once()
         val request = Get(s"/v1/operations/${depositFixture.operationId}")
         request ~> routes ~> check {
-          status should ===(StatusCodes.OK)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Deposit] should ===(depositFixture)
+          status shouldBe StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Deposit] shouldBe depositFixture
         }
       }
 
@@ -52,9 +52,9 @@ class OperationsRoutesSpec
         (ledgerService.get(_:OperationId)(_:ClassTag[Withdrawal])).expects(*,*).returning(Right(withdrawalFixture)).once()
         val request = Get(s"/v1/operations/${withdrawalFixture.operationId}")
         request ~> routes ~> check {
-          status should ===(StatusCodes.OK)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Withdrawal] should ===(withdrawalFixture)
+          status shouldBe StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Withdrawal] shouldBe withdrawalFixture
         }
       }
 
@@ -62,9 +62,9 @@ class OperationsRoutesSpec
         (ledgerService.get(_:OperationId)(_:ClassTag[Transfer])).expects(*,*).returning(Right(transferFixture)).once()
         val request = Get(s"/v1/operations/${transferFixture.operationId}")
         request ~> routes ~> check {
-          status should ===(StatusCodes.OK)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Transfer] should ===(transferFixture)
+          status shouldBe StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Transfer] shouldBe transferFixture
         }
       }
 
@@ -73,9 +73,9 @@ class OperationsRoutesSpec
         (ledgerService.get(_:OperationId)(_:ClassTag[Transfer])).expects(*,*).returning(Left(problem)).once()
         val request = Get(s"/v1/operations/${transferFixture.operationId}")
         request ~> routes ~> check {
-          status should ===(StatusCodes.NotFound)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Problem] should ===(problem)
+          status shouldBe StatusCodes.NotFound
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Problem] shouldBe problem
         }
       }
     }

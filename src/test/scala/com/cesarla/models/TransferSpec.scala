@@ -11,12 +11,12 @@ class TransferSpec extends WordSpec with Matchers with PlayJsonSupport with Fixt
 
     "serialize" in {
       val json: JsValue = Json.toJson(transferFixture)
-      (json \ "operation_id").as[OperationId] should ===(transferFixture.operationId)
-      (json \ "source_id").as[AccountId] should ===(transferFixture.sourceId)
-      (json \ "target_id").as[AccountId] should ===(transferFixture.targetId)
-      (json \ "money").as[Money] should ===(transferFixture.money)
-      (json \ "created_at").as[Instant] should ===(transferFixture.createdAt)
-      (json \ "status").as[OperationStatus] should ===(transferFixture.status)
+      (json \ "operation_id").as[OperationId] shouldBe transferFixture.operationId
+      (json \ "source_id").as[AccountId] shouldBe transferFixture.sourceId
+      (json \ "target_id").as[AccountId] shouldBe transferFixture.targetId
+      (json \ "money").as[Money] shouldBe transferFixture.money
+      (json \ "created_at").as[Instant] shouldBe transferFixture.createdAt
+      (json \ "status").as[OperationStatus] shouldBe transferFixture.status
     }
 
     "deserialize" in {
@@ -32,7 +32,7 @@ class TransferSpec extends WordSpec with Matchers with PlayJsonSupport with Fixt
           |   "status": "SUCCESSFUL"
           |}
         """.stripMargin)
-      json.as[Transfer] should ===(transferFixture)
+      json.as[Transfer] shouldBe transferFixture
     }
   }
 }

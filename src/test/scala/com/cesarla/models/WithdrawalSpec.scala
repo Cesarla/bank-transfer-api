@@ -14,11 +14,11 @@ class WithdrawalSpec extends WordSpec with Matchers with PlayJsonSupport with Fi
   "Deposit" should {
     "serialize" in {
       val json: JsValue = Json.toJson(withdrawalFixture)
-      (json \ "operation_id").as[OperationId] should ===(withdrawalFixture.operationId)
-      (json \ "account_id").as[AccountId] should ===(withdrawalFixture.accountId)
-      (json \ "money").as[Money] should ===(withdrawalFixture.money)
-      (json \ "created_at").as[Instant] should ===(withdrawalFixture.createdAt)
-      (json \ "status").as[OperationStatus] should ===(withdrawalFixture.status)
+      (json \ "operation_id").as[OperationId] shouldBe withdrawalFixture.operationId
+      (json \ "account_id").as[AccountId] shouldBe withdrawalFixture.accountId
+      (json \ "money").as[Money] shouldBe withdrawalFixture.money
+      (json \ "created_at").as[Instant] shouldBe withdrawalFixture.createdAt
+      (json \ "status").as[OperationStatus] shouldBe withdrawalFixture.status
     }
 
     "deserialize" in {
@@ -33,7 +33,7 @@ class WithdrawalSpec extends WordSpec with Matchers with PlayJsonSupport with Fi
           |   "status": "SUCCESSFUL"
           |}
         """.stripMargin)
-      json.as[Withdrawal] should ===(withdrawalFixture)
+      json.as[Withdrawal] shouldBe withdrawalFixture
     }
   }
 }

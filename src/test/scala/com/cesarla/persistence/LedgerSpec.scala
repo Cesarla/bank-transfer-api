@@ -15,39 +15,39 @@ class LedgerSpec extends WordSpec with Matchers with PlayJsonSupport with Fixtur
         val log = TrieMap(accountId1Fixture -> List(recordFixture))
         val ledger = new Ledger(log)
         ledger.storeRecord(accountId1Fixture, recordFixture)
-        log.getOrElse(accountId1Fixture, TrieMap.empty[AccountId, List[Record]]).size should ===(2)
+        log.getOrElse(accountId1Fixture, TrieMap.empty[AccountId, List[Record]]).size shouldBe 2
       }
 
       "with no records stored" in {
         val log = TrieMap.empty[AccountId, List[Record]]
         val ledger = new Ledger(log)
         ledger.storeRecord(accountId1Fixture, recordFixture)
-        log.getOrElse(accountId1Fixture, TrieMap.empty[AccountId, List[Record]]).size should ===(1)
+        log.getOrElse(accountId1Fixture, TrieMap.empty[AccountId, List[Record]]).size shouldBe 1
       }
     }
 
     "getRecords" should {
       "with records stored" in {
         val ledger = new Ledger(TrieMap(accountId1Fixture -> List(recordFixture)))
-        ledger.getRecords(accountId1Fixture).isEmpty should ===(false)
+        ledger.getRecords(accountId1Fixture).isEmpty shouldBe false
       }
 
       "with no records stored" in {
         val ledger = new Ledger(TrieMap.empty[AccountId, List[Record]])
-        ledger.getRecords(accountId1Fixture).isEmpty should ===(true)
+        ledger.getRecords(accountId1Fixture).isEmpty shouldBe true
       }
     }
 
     "replayAccount" should {
       "with records stored" in {
         val ledger = new Ledger(TrieMap(accountId1Fixture -> List(recordFixture)))
-        ledger.replayAccount(accountId1Fixture) should ===(
-          (Snapshot(accountId1Fixture, recordFixture.balance, Instant.EPOCH), 1))
+        ledger.replayAccount(accountId1Fixture) shouldBe
+          ((Snapshot(accountId1Fixture, recordFixture.balance, Instant.EPOCH), 1))
       }
 
       "with no records stored" in {
         val ledger = new Ledger(TrieMap.empty[AccountId, List[Record]])
-        ledger.replayAccount(accountId1Fixture) should ===((Snapshot(accountId1Fixture, Money(0, "EUR"), Instant.EPOCH), 0))
+        ledger.replayAccount(accountId1Fixture) shouldBe ((Snapshot(accountId1Fixture, Money(0, "EUR"), Instant.EPOCH), 0))
       }
     }
   }

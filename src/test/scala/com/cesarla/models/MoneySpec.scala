@@ -9,8 +9,8 @@ class MoneySpec extends WordSpec with Matchers with PlayJsonSupport with Fixture
   "Money" should {
     "serialize" in {
       val json: JsValue = Json.toJson(moneyFixture)
-      (json \ "total").as[String] should ===("42.0000")
-      (json \ "currency").as[String] should ===("EUR")
+      (json \ "total").as[String] shouldBe "42.0000"
+      (json \ "currency").as[String] shouldBe "EUR"
     }
 
     "deserialize" in {
@@ -20,7 +20,7 @@ class MoneySpec extends WordSpec with Matchers with PlayJsonSupport with Fixture
           |  "currency": "EUR"
           |}
         """.stripMargin)
-      json.as[Money] should ===(moneyFixture)
+      json.as[Money] shouldBe moneyFixture
     }
   }
 }

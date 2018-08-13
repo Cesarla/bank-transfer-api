@@ -10,8 +10,8 @@ class ProblemSpec  extends WordSpec with Matchers with PlayJsonSupport with Fixt
   "Problem" should {
     "serialize" in {
       val json: JsValue = Json.toJson(problemFixture)
-      (json \ "status").as[StatusCode] should ===(StatusCodes.InternalServerError)
-      (json \ "reason").as[String] should ===("Something went wrong")
+      (json \ "status").as[StatusCode] shouldBe StatusCodes.InternalServerError
+      (json \ "reason").as[String] shouldBe "Something went wrong"
     }
 
     "deserialize" in {
@@ -21,7 +21,7 @@ class ProblemSpec  extends WordSpec with Matchers with PlayJsonSupport with Fixt
                                        |  "reason": "Something went wrong"
                                        |}
                                      """.stripMargin)
-      json.as[Problem] should ===(problemFixture)
+      json.as[Problem] shouldBe problemFixture
     }
   }
 }

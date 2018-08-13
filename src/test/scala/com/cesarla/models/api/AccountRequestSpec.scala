@@ -10,7 +10,7 @@ class AccountRequestSpec extends WordSpec with Matchers with PlayJsonSupport wit
 
     "serialize" in {
       val json: JsValue = Json.toJson(accountRequest)
-      (json \ "currency").as[String] should ===(accountRequest.currency)
+      (json \ "currency").as[String] shouldBe accountRequest.currency
     }
 
     "deserialize" in {
@@ -19,7 +19,7 @@ class AccountRequestSpec extends WordSpec with Matchers with PlayJsonSupport wit
           |   "currency": "EUR"
           |}
         """.stripMargin)
-      json.as[AccountRequest] should ===(accountRequest)
+      json.as[AccountRequest] shouldBe accountRequest
     }
   }
 }

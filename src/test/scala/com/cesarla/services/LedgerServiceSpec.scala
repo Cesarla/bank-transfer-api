@@ -21,7 +21,7 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
                        150.milliseconds)
         eventually {
           val Right(deposit: Deposit) = ledgerService.get[Deposit](depositFixture.operationId)
-          deposit.status should ===(OperationStatus.Successful)
+          deposit.status shouldBe OperationStatus.Successful
         }
       }
 
@@ -33,7 +33,7 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
 
         eventually {
           val Right(withdrawal: Withdrawal) = ledgerService.get[Withdrawal](withdrawalFixture.operationId)
-          withdrawal.status should ===(OperationStatus.Successful)
+          withdrawal.status shouldBe OperationStatus.Successful
         }
       }
 
@@ -45,8 +45,8 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
                        150.milliseconds)
         eventually {
           val Right(withdrawal: Withdrawal) = ledgerService.get[Withdrawal](withdrawalFixture.operationId)
-          withdrawal.status should ===(OperationStatus.Failed)
-          withdrawal.detail should ===(Some("Not enough founds"))
+          withdrawal.status shouldBe OperationStatus.Failed
+          withdrawal.detail shouldBe Some("Not enough founds")
         }
       }
 
@@ -57,7 +57,7 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
                        150.milliseconds)
         eventually {
           val Right(transfer: Transfer) = ledgerService.get[Transfer](transferFixture.operationId)
-          transfer.status should ===(OperationStatus.Successful)
+          transfer.status shouldBe OperationStatus.Successful
         }
       }
 
@@ -69,8 +69,8 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
                        150.milliseconds)
         eventually {
           val Right(transfer: Transfer) = ledgerService.get[Transfer](transferFixture.operationId)
-          transfer.status should ===(OperationStatus.Failed)
-          transfer.detail should ===(Some("Not enough founds"))
+          transfer.status shouldBe OperationStatus.Failed
+          transfer.detail shouldBe Some("Not enough founds")
         }
       }
     }
@@ -79,25 +79,25 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
       "return a deposit if present" in new WithMocks {
         (mockOperationRepository.getOperation(_: OperationId)).expects(*).returning(Some(depositFixture))
         val Right(deposit: Deposit) = ledgerService.get[Deposit](operationIdFixture)
-        deposit should ===(depositFixture)
+        deposit shouldBe depositFixture
       }
 
       "return a withdrawal if present" in new WithMocks {
         (mockOperationRepository.getOperation(_: OperationId)).expects(*).returning(Some(withdrawalFixture))
         val Right(withdrawal: Withdrawal) = ledgerService.get[Withdrawal](operationIdFixture)
-        withdrawal should ===(withdrawalFixture)
+        withdrawal shouldBe withdrawalFixture
       }
 
       "return a transfer if present" in new WithMocks {
         (mockOperationRepository.getOperation(_: OperationId)).expects(*).returning(Some(transferFixture))
         val Right(transfer: Transfer) = ledgerService.get[Transfer](operationIdFixture)
-        transfer should ===(transferFixture)
+        transfer shouldBe transferFixture
       }
 
       "return problem if not present" in new WithMocks {
         (mockOperationRepository.getOperation(_: OperationId)).expects(*).returning(None)
         val Left(problem) = ledgerService.get[Transfer](operationIdFixture)
-        problem.status should ===(StatusCodes.NotFound)
+        problem.status shouldBe StatusCodes.NotFound
       }
     }
 
@@ -107,14 +107,14 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
         (mockLedger.replayAccount(_: AccountId)).expects(*).returning((snapshotFixture, 1)).once()
 
         val Right(snapshot) = ledgerService.computeBalance(accountId1Fixture)
-        snapshot should ===(snapshotFixture)
+        snapshot shouldBe snapshotFixture
       }
 
       "with no records" in new WithMocks {
         (mockLedger.getRecords(_: AccountId)).expects(*).returning(List.empty[Record]).once()
 
         val Left(problem) = ledgerService.computeBalance(accountId1Fixture)
-        problem.status should ===(StatusCodes.NotFound)
+        problem.status shouldBe StatusCodes.NotFound
       }
     }
 

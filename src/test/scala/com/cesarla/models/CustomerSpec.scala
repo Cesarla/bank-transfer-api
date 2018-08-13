@@ -11,9 +11,9 @@ class CustomerSpec extends WordSpec with Matchers with PlayJsonSupport with Fixt
   "Customer" should {
     "serialize" in {
       val json: JsValue = Json.toJson(customerFixture)
-      (json \ "id").as[CustomerId] should ===(customerFixture.id)
-      (json \ "email").as[String] should ===(customerFixture.email)
-      (json \ "accounts").as[Map[String, AccountId]] should ===(customerFixture.accounts)
+      (json \ "id").as[CustomerId] shouldBe customerFixture.id
+      (json \ "email").as[String] shouldBe customerFixture.email
+      (json \ "accounts").as[Map[String, AccountId]] shouldBe customerFixture.accounts
     }
 
     "deserialize" in {
@@ -26,7 +26,7 @@ class CustomerSpec extends WordSpec with Matchers with PlayJsonSupport with Fixt
           |   }
           |}
         """.stripMargin)
-      json.as[Customer] should ===(customerFixture)
+      json.as[Customer] shouldBe customerFixture
     }
   }
 }

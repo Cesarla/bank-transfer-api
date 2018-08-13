@@ -71,7 +71,7 @@ class LedgerService(ledger: Ledger, operationRepository: OperationRepository, pa
   }
 
   private[this] def processWithdrawal(withdrawal: Withdrawal): Unit = {
-    val (snapshot, _)  = ledger.replayAccount(withdrawal.accountId)
+    val (snapshot, _) = ledger.replayAccount(withdrawal.accountId)
     if (withdrawal.money.total > snapshot.balance.total) {
       operationRepository.setAsFailed(withdrawal.operationId, Some("Not enough founds"))
     } else if (withdrawal.money.currency != snapshot.balance.currency) {

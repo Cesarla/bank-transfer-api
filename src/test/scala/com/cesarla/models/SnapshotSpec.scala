@@ -10,9 +10,9 @@ class SnapshotSpec extends WordSpec with Matchers with PlayJsonSupport with Fixt
   "Snapshot" should {
     "serialize" in {
       val json: JsValue = Json.toJson(snapshotFixture)
-      (json \ "account_id").as[AccountId] should ===(snapshotFixture.accountId)
-      (json \ "balance").as[Money] should ===(snapshotFixture.balance)
-      (json \ "updated_at").as[Instant] should ===(snapshotFixture.updatedAt)
+      (json \ "account_id").as[AccountId] shouldBe snapshotFixture.accountId
+      (json \ "balance").as[Money] shouldBe snapshotFixture.balance
+      (json \ "updated_at").as[Instant] shouldBe snapshotFixture.updatedAt
     }
   }
 }

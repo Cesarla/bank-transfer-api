@@ -48,9 +48,9 @@ class CustomersRoutesSpec
           .once()
         val request = Get(s"/v1/customers/$customerIdFixture")
         request ~> routes ~> check {
-          status should ===(StatusCodes.OK)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Customer] should ===(customerFixture)
+          status shouldBe StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Customer] shouldBe customerFixture
         }
       }
 
@@ -63,9 +63,9 @@ class CustomersRoutesSpec
           .once()
         val request = Get(s"/v1/customers/$customerIdFixture")
         request ~> routes ~> check {
-          status should ===(StatusCodes.NotFound)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Problem] should ===(problem)
+          status shouldBe StatusCodes.NotFound
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Problem] shouldBe problem
         }
       }
     }
@@ -86,9 +86,9 @@ class CustomersRoutesSpec
             |}
           """.stripMargin)))
         request ~> routes ~> check {
-          status should ===(StatusCodes.OK)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Customer] should ===(customerFixture)
+          status shouldBe StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Customer] shouldBe customerFixture
         }
       }
       "returning 409 if the email is already in use" in {
@@ -105,9 +105,9 @@ class CustomersRoutesSpec
                        """.stripMargin)
           ))
         request ~> routes ~> check {
-          status should ===(StatusCodes.Conflict)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Problem] should ===(problem)
+          status shouldBe StatusCodes.Conflict
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Problem] shouldBe problem
         }
       }
     }
@@ -129,8 +129,8 @@ class CustomersRoutesSpec
                        """.stripMargin)
           ))
         request ~> routes ~> check {
-          status should ===(StatusCodes.Created)
-          status should ===(StatusCodes.Created)
+          status shouldBe StatusCodes.Created
+          status shouldBe StatusCodes.Created
         }
       }
       "returning 409 if the email is already in use" in {
@@ -150,9 +150,9 @@ class CustomersRoutesSpec
                        """.stripMargin)
           ))
         request ~> routes ~> check {
-          status should ===(StatusCodes.Conflict)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Problem] should ===(problem)
+          status shouldBe StatusCodes.Conflict
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Problem] shouldBe problem
         }
       }
     }

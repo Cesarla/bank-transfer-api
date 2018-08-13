@@ -16,14 +16,13 @@ class CustomerServiceSpec extends WordSpec with Matchers with PlayJsonSupport wi
     "getCustomer" should {
       "return customer if present" in new WithMocks {
         (mockCustomerRepository.getCustomer(_: CustomerId)).expects(*).returning(Some(customerFixture))
-        Await.result(customerService.getCustomer(customerIdFixture), 100.milliseconds) should ===(
-          Right(customerFixture))
+        Await.result(customerService.getCustomer(customerIdFixture), 100.milliseconds) shouldBe Right(customerFixture)
       }
 
       "return problem if not present" in new WithMocks {
         (mockCustomerRepository.getCustomer(_: CustomerId)).expects(*).returning(None)
-        Await.result(customerService.getCustomer(customerIdFixture), 100.milliseconds) should ===(
-          Left(Problems.NotFound(s"Customer $customerIdFixture not found")))
+        Await.result(customerService.getCustomer(customerIdFixture), 100.milliseconds) shouldBe
+          Left(Problems.NotFound(s"Customer $customerIdFixture not found"))
       }
     }
 
@@ -34,13 +33,13 @@ class CustomerServiceSpec extends WordSpec with Matchers with PlayJsonSupport wi
         (() => mockTimeBasedGenerator.generate).expects().returning(customerIdFixture.value)
         val Right(customer) = Await.result(customerService.createCustomer(customerFixture.email), 100.milliseconds)
 
-        customer should ===(Customer(customerIdFixture, customerFixture.email))
+        customer shouldBe Customer(customerIdFixture, customerFixture.email)
       }
 
       "return problem if email already registered" in new WithMocks {
         (mockCustomerRepository.existsCustomer(_: String)).expects(*).returning(true)
-        Await.result(customerService.createCustomer(customerFixture.email), 100.milliseconds) should ===(
-          Left(Problems.Conflict("Email already taken")))
+        Await.result(customerService.createCustomer(customerFixture.email), 100.milliseconds) shouldBe
+          Left(Problems.Conflict("Email already taken"))
       }
     }
 

@@ -10,10 +10,10 @@ class RecordSpec extends WordSpec with Matchers with PlayJsonSupport with Fixtur
   "Record" should {
     "serialize" in {
       val json: JsValue = Json.toJson(recordFixture)
-      (json \ "account_id").as[AccountId] should ===(recordFixture.accountId)
-      (json \ "balance").as[Money] should ===(recordFixture.balance)
-      (json \ "created_at").as[Instant] should ===(recordFixture.createdAt)
-      (json \ "operation_id").asOpt[OperationId] should ===(recordFixture.operationId)
+      (json \ "account_id").as[AccountId] shouldBe recordFixture.accountId
+      (json \ "balance").as[Money] shouldBe recordFixture.balance
+      (json \ "created_at").as[Instant] shouldBe recordFixture.createdAt
+      (json \ "operation_id").asOpt[OperationId] shouldBe recordFixture.operationId
     }
 
     "deserialize" in {
@@ -27,7 +27,7 @@ class RecordSpec extends WordSpec with Matchers with PlayJsonSupport with Fixtur
           |   "operation_id": "3a5aaf3c-0c31-425b-ac09-d0887d3ae2ba"
           |}
         """.stripMargin)
-      json.as[Record] should ===(recordFixture)
+      json.as[Record] shouldBe recordFixture
     }
   }
 }

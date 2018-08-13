@@ -11,8 +11,8 @@ class TransferRequestSpec extends WordSpec with Matchers with PlayJsonSupport wi
 
     "serialize" in {
       val json: JsValue = Json.toJson(transferRequest)
-      (json \ "target_id").as[AccountId] should ===(transferFixture.targetId)
-      (json \ "money").as[Money] should ===(transferFixture.money)
+      (json \ "target_id").as[AccountId] shouldBe transferFixture.targetId
+      (json \ "money").as[Money] shouldBe transferFixture.money
     }
 
     "deserialize" in {
@@ -24,7 +24,7 @@ class TransferRequestSpec extends WordSpec with Matchers with PlayJsonSupport wi
           |   }
           |}
         """.stripMargin)
-      json.as[TransferRequest] should ===(transferRequest)
+      json.as[TransferRequest] shouldBe transferRequest
     }
   }
 }

@@ -33,7 +33,7 @@ class AccountServiceSpec extends WordSpec with Matchers with PlayJsonSupport wit
         (() => mockTimeBasedGenerator.generate).expects().returning(accountId1Fixture.value).twice()
         val Right(accountId) =
           Await.result(accountService.createAccount(customerIdFixture, Money.Dollar), 100.milliseconds)
-        accountId should ===(accountId1Fixture)
+        accountId shouldBe accountId1Fixture
       }
 
       "return problem if currency is not supported" in new WithMocks {
@@ -50,7 +50,7 @@ class AccountServiceSpec extends WordSpec with Matchers with PlayJsonSupport wit
           .never()
         (() => mockTimeBasedGenerator.generate).expects().returning(accountId1Fixture.value).never()
         val Left(problem) = Await.result(accountService.createAccount(customerIdFixture, "JPY"), 100.milliseconds)
-        problem should ===(Problems.BadRequest(s"The currency JPY is not supported"))
+        problem shouldBe Problems.BadRequest(s"The currency JPY is not supported")
       }
 
       "return problem if customer does not exists" in new WithMocks {
@@ -63,7 +63,7 @@ class AccountServiceSpec extends WordSpec with Matchers with PlayJsonSupport wit
           .never()
         (() => mockTimeBasedGenerator.generate).expects().returning(accountId1Fixture.value).never()
         val Left(problem) = Await.result(accountService.createAccount(customerIdFixture, Money.Euro), 100.milliseconds)
-        problem should ===(Problems.NotFound(s"Customer $customerIdFixture not found"))
+        problem shouldBe Problems.NotFound(s"Customer $customerIdFixture not found")
       }
 
       "if the customer already has an account for that currency" in new WithMocks {
@@ -76,7 +76,7 @@ class AccountServiceSpec extends WordSpec with Matchers with PlayJsonSupport wit
           .never()
         (() => mockTimeBasedGenerator.generate).expects().returning(accountId1Fixture.value).never()
         val Left(problem) = Await.result(accountService.createAccount(customerIdFixture, Money.Euro), 100.milliseconds)
-        problem should ===(Problems.BadRequest("The customer already has an account with the given currency"))
+        problem shouldBe Problems.BadRequest("The customer already has an account with the given currency")
       }
     }
   }

@@ -51,9 +51,9 @@ class AccountsRoutesSpec
           .once()
         val request = Get(s"/v1/accounts/$accountId1Fixture")
         request ~> routes ~> check {
-          status should ===(StatusCodes.OK)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Snapshot] should ===(snapshotFixture)
+          status shouldBe StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Snapshot] shouldBe snapshotFixture
         }
       }
       "returning 404 if the customer already has an account with the give currency" in {
@@ -65,9 +65,9 @@ class AccountsRoutesSpec
           .once()
         val request = Get(s"/v1/accounts/$accountId1Fixture")
         request ~> routes ~> check {
-          status should ===(StatusCodes.NotFound)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Problem] should ===(problem)
+          status shouldBe StatusCodes.NotFound
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Problem] shouldBe problem
         }
       }
     }
@@ -91,9 +91,9 @@ class AccountsRoutesSpec
                        """.stripMargin)
           ))
         request ~> routes ~> check {
-          status should ===(StatusCodes.Accepted)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Deposit] should ===(depositFixture)
+          status shouldBe StatusCodes.Accepted
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Deposit] shouldBe depositFixture
         }
       }
 
@@ -115,9 +115,9 @@ class AccountsRoutesSpec
                      """.stripMargin)
           ))
         request ~> routes ~> check {
-          status should ===(StatusCodes.NotFound)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Problem] should ===(Problems.NotFound(s"Account ${withdrawalFixture.accountId} does not exists"))
+          status shouldBe StatusCodes.NotFound
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Problem] shouldBe Problems.NotFound(s"Account ${withdrawalFixture.accountId} does not exists")
         }
       }
 
@@ -139,9 +139,9 @@ class AccountsRoutesSpec
                        """.stripMargin)
           ))
         request ~> routes ~> check {
-          status should ===(StatusCodes.BadRequest)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Problem] should ===(Problems.BadRequest("Deposits must be positive"))
+          status shouldBe StatusCodes.BadRequest
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Problem] shouldBe Problems.BadRequest("Deposits must be positive")
         }
       }
 
@@ -155,9 +155,9 @@ class AccountsRoutesSpec
         (accountService.existAccount(_: AccountId)).expects(withdrawalFixture.accountId).returning(true).never()
         val request = Post(s"/v1/accounts/$accountId1Fixture/deposits")
         request ~> routes ~> check {
-          status should ===(StatusCodes.UnprocessableEntity)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Problem] should ===(Problems.UnprocessableEntity("The request is empty, a payload is expected"))
+          status shouldBe StatusCodes.UnprocessableEntity
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Problem] shouldBe Problems.UnprocessableEntity("The request is empty, a payload is expected")
         }
       }
     }
@@ -182,8 +182,8 @@ class AccountsRoutesSpec
           ))
 
         request ~> routes ~> check {
-          status should ===(StatusCodes.Accepted)
-          contentType should ===(ContentTypes.`application/json`)
+          status shouldBe StatusCodes.Accepted
+          contentType shouldBe ContentTypes.`application/json`
         }
       }
 
@@ -205,9 +205,9 @@ class AccountsRoutesSpec
                      """.stripMargin)
           ))
         request ~> routes ~> check {
-          status should ===(StatusCodes.NotFound)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Problem] should ===(Problems.NotFound(s"Account ${withdrawalFixture.accountId} does not exists"))
+          status shouldBe StatusCodes.NotFound
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Problem] shouldBe Problems.NotFound(s"Account ${withdrawalFixture.accountId} does not exists")
         }
       }
 
@@ -228,9 +228,9 @@ class AccountsRoutesSpec
                        """.stripMargin)
           ))
         request ~> routes ~> check {
-          status should ===(StatusCodes.BadRequest)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Problem] should ===(Problems.BadRequest("Withdrawals must be positive"))
+          status shouldBe StatusCodes.BadRequest
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Problem] shouldBe Problems.BadRequest("Withdrawals must be positive")
         }
       }
 
@@ -243,9 +243,9 @@ class AccountsRoutesSpec
           .never()
         val request = Post(s"/v1/accounts/$accountId1Fixture/withdrawals")
         request ~> routes ~> check {
-          status should ===(StatusCodes.UnprocessableEntity)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Problem] should ===(Problems.UnprocessableEntity("The request is empty, a payload is expected"))
+          status shouldBe StatusCodes.UnprocessableEntity
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Problem] shouldBe Problems.UnprocessableEntity("The request is empty, a payload is expected")
         }
       }
     }
@@ -273,9 +273,9 @@ class AccountsRoutesSpec
                    """.stripMargin)
         ))
         request ~> routes ~> check {
-          status should ===(StatusCodes.Accepted)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Transfer] should ===(transferFixture)
+          status shouldBe StatusCodes.Accepted
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Transfer] shouldBe transferFixture
         }
       }
 
@@ -302,10 +302,10 @@ class AccountsRoutesSpec
                      """.stripMargin)
         ))
         request ~> routes ~> check {
-          status should ===(StatusCodes.NotFound)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Problem] should ===(
-            Problems.NotFound(s"Source account ${transferFixture.sourceId} does not exists"))
+          status shouldBe StatusCodes.NotFound
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Problem] shouldBe
+            Problems.NotFound(s"Source account ${transferFixture.sourceId} does not exists")
         }
       }
 
@@ -332,10 +332,10 @@ class AccountsRoutesSpec
                      """.stripMargin)
         ))
         request ~> routes ~> check {
-          status should ===(StatusCodes.NotFound)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Problem] should ===(
-            Problems.NotFound(s"Target account ${transferFixture.targetId} does not exists"))
+          status shouldBe StatusCodes.NotFound
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Problem] shouldBe
+            Problems.NotFound(s"Target account ${transferFixture.targetId} does not exists")
         }
       }
 
@@ -362,9 +362,9 @@ class AccountsRoutesSpec
                    """.stripMargin)
         ))
         request ~> routes ~> check {
-          status should ===(StatusCodes.BadRequest)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Problem] should ===(Problems.BadRequest("Transfers sourceId and targetId must be different"))
+          status shouldBe StatusCodes.BadRequest
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Problem] shouldBe Problems.BadRequest("Transfers sourceId and targetId must be different")
         }
       }
 
@@ -389,9 +389,9 @@ class AccountsRoutesSpec
                    """.stripMargin)
         ))
         request ~> routes ~> check {
-          status should ===(StatusCodes.BadRequest)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Problem] should ===(Problems.BadRequest("Transfer must be positive"))
+          status shouldBe StatusCodes.BadRequest
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Problem] shouldBe Problems.BadRequest("Transfer must be positive")
         }
       }
 
@@ -404,9 +404,9 @@ class AccountsRoutesSpec
           .never()
         val request = Post(s"/v1/accounts/$accountId1Fixture/transfers")
         request ~> routes ~> check {
-          status should ===(StatusCodes.UnprocessableEntity)
-          contentType should ===(ContentTypes.`application/json`)
-          responseAs[Problem] should ===(Problems.UnprocessableEntity("The request is empty, a payload is expected"))
+          status shouldBe StatusCodes.UnprocessableEntity
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[Problem] shouldBe Problems.UnprocessableEntity("The request is empty, a payload is expected")
         }
       }
     }
