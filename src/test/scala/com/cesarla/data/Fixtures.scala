@@ -2,6 +2,7 @@ package com.cesarla.data
 import java.time.Instant
 import java.util.UUID
 
+import com.cesarla.models.api.{AccountRequest, TransferRequest}
 import com.cesarla.models.{OperationId, _}
 
 trait Fixtures {
@@ -30,6 +31,10 @@ trait Fixtures {
 
   lazy val transferRequest: TransferRequest = TransferRequest(
     accountId2Fixture, moneyFixture
+  )
+
+  lazy val accountRequest: AccountRequest = AccountRequest(
+    currency = "EUR"
   )
 
   lazy val transferFixture: Transfer = Transfer(

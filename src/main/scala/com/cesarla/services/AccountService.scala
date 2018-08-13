@@ -17,7 +17,9 @@ class AccountService(customerRepository: CustomerRepository, ledgerService: Ledg
       customerRepository
         .getCustomer(customerId)
         .map { customer =>
-          if (customer.accounts.contains(currency)) {
+          if (!AccountService.validCurrencies.contains(currency)) {
+            Left(Problems.BadRequest(s"The currency $currency is not supported"))
+          } else if (customer.accounts.contains(currency)) {
             Left(Problems.BadRequest("The customer already has an account with the given currency"))
           } else {
             val accountId = AccountId.generate
@@ -35,4 +37,8 @@ class AccountService(customerRepository: CustomerRepository, ledgerService: Ledg
     }
 
   def existAccount(accountId: AccountId): Boolean = ledgerService.computeBalance(accountId).isRight
+}
+
+object AccountService {
+  val validCurrencies = Seq(Money.Euro, Money.Dollar, Money.Pound)
 }

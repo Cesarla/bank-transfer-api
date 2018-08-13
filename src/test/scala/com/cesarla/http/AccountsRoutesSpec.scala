@@ -78,17 +78,18 @@ class AccountsRoutesSpec
         (ledgerService
           .dispatchOperation(_: Deposit)(_: ClassTag[Deposit]))
           .expects(*, *)
-          .returning(Future.successful(Right(depositFixture))).once()
-        (accountService.existAccount(_:AccountId)).expects(withdrawalFixture.accountId).returning(true).once()
+          .returning(Future.successful(Right(depositFixture)))
+          .once()
+        (accountService.existAccount(_: AccountId)).expects(withdrawalFixture.accountId).returning(true).once()
         val request = Post(s"/v1/accounts/$accountId1Fixture/deposits").withEntity(HttpEntity(
-          MediaTypes.`application/json`,
-          ByteString("""
+            MediaTypes.`application/json`,
+            ByteString("""
                          |{
                          |  "total": "42.0000",
                          |  "currency": "EUR"
                          |}
                        """.stripMargin)
-        ))
+          ))
         request ~> routes ~> check {
           status should ===(StatusCodes.Accepted)
           contentType should ===(ContentTypes.`application/json`)
@@ -101,17 +102,18 @@ class AccountsRoutesSpec
         (ledgerService
           .dispatchOperation(_: Deposit)(_: ClassTag[Deposit]))
           .expects(*, *)
-          .returning(Future.successful(Right(depositFixture))).never()
-        (accountService.existAccount(_:AccountId)).expects(withdrawalFixture.accountId).returning(false).once()
+          .returning(Future.successful(Right(depositFixture)))
+          .never()
+        (accountService.existAccount(_: AccountId)).expects(withdrawalFixture.accountId).returning(false).once()
         val request = Post(s"/v1/accounts/$accountId1Fixture/deposits").withEntity(HttpEntity(
-          MediaTypes.`application/json`,
-          ByteString("""
+            MediaTypes.`application/json`,
+            ByteString("""
                        |{
                        |  "total": "42.0000",
                        |  "currency": "EUR"
                        |}
                      """.stripMargin)
-        ))
+          ))
         request ~> routes ~> check {
           status should ===(StatusCodes.NotFound)
           contentType should ===(ContentTypes.`application/json`)
@@ -124,21 +126,38 @@ class AccountsRoutesSpec
         (ledgerService
           .dispatchOperation(_: Deposit)(_: ClassTag[Deposit]))
           .expects(*, *)
-          .returning(Future.successful(Right(depositFixture))).never()
-        (accountService.existAccount(_:AccountId)).expects(withdrawalFixture.accountId).returning(true).never()
+          .returning(Future.successful(Right(depositFixture)))
+          .never()
+        (accountService.existAccount(_: AccountId)).expects(withdrawalFixture.accountId).returning(true).never()
         val request = Post(s"/v1/accounts/$accountId1Fixture/deposits").withEntity(HttpEntity(
-          MediaTypes.`application/json`,
-          ByteString("""
+            MediaTypes.`application/json`,
+            ByteString("""
                          |{
                          |  "total": "-42.0000",
                          |  "currency": "EUR"
                          |}
                        """.stripMargin)
-        ))
+          ))
         request ~> routes ~> check {
           status should ===(StatusCodes.BadRequest)
           contentType should ===(ContentTypes.`application/json`)
           responseAs[Problem] should ===(Problems.BadRequest("Deposits must be positive"))
+        }
+      }
+
+      "return 422 if the payload is missing" in {
+        (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).never()
+        (ledgerService
+          .dispatchOperation(_: Deposit)(_: ClassTag[Deposit]))
+          .expects(*, *)
+          .returning(Future.successful(Right(depositFixture)))
+          .never()
+        (accountService.existAccount(_: AccountId)).expects(withdrawalFixture.accountId).returning(true).never()
+        val request = Post(s"/v1/accounts/$accountId1Fixture/deposits")
+        request ~> routes ~> check {
+          status should ===(StatusCodes.UnprocessableEntity)
+          contentType should ===(ContentTypes.`application/json`)
+          responseAs[Problem] should ===(Problems.UnprocessableEntity("The request is empty, a payload is expected"))
         }
       }
     }
@@ -149,17 +168,18 @@ class AccountsRoutesSpec
         (ledgerService
           .dispatchOperation(_: Withdrawal)(_: ClassTag[Withdrawal]))
           .expects(*, *)
-          .returning(Future.successful(Right(withdrawalFixture))).once()
-        (accountService.existAccount(_:AccountId)).expects(withdrawalFixture.accountId).returning(true).once()
+          .returning(Future.successful(Right(withdrawalFixture)))
+          .once()
+        (accountService.existAccount(_: AccountId)).expects(withdrawalFixture.accountId).returning(true).once()
         val request = Post(s"/v1/accounts/$accountId1Fixture/withdrawals").withEntity(HttpEntity(
-          MediaTypes.`application/json`,
-          ByteString("""
+            MediaTypes.`application/json`,
+            ByteString("""
                          |{
                          |  "total": "42.0000",
                          |  "currency": "EUR"
                          |}
                        """.stripMargin)
-        ))
+          ))
 
         request ~> routes ~> check {
           status should ===(StatusCodes.Accepted)
@@ -172,17 +192,18 @@ class AccountsRoutesSpec
         (ledgerService
           .dispatchOperation(_: Withdrawal)(_: ClassTag[Withdrawal]))
           .expects(*, *)
-          .returning(Future.successful(Right(withdrawalFixture))).never()
-        (accountService.existAccount(_:AccountId)).expects(withdrawalFixture.accountId).returning(false).once()
+          .returning(Future.successful(Right(withdrawalFixture)))
+          .never()
+        (accountService.existAccount(_: AccountId)).expects(withdrawalFixture.accountId).returning(false).once()
         val request = Post(s"/v1/accounts/$accountId1Fixture/withdrawals").withEntity(HttpEntity(
-          MediaTypes.`application/json`,
-          ByteString("""
+            MediaTypes.`application/json`,
+            ByteString("""
                        |{
                        |  "total": "42.0000",
                        |  "currency": "EUR"
                        |}
                      """.stripMargin)
-        ))
+          ))
         request ~> routes ~> check {
           status should ===(StatusCodes.NotFound)
           contentType should ===(ContentTypes.`application/json`)
@@ -195,37 +216,50 @@ class AccountsRoutesSpec
         (ledgerService
           .dispatchOperation(_: Withdrawal)(_: ClassTag[Withdrawal]))
           .expects(*, *)
-          .returning(Future.successful(Right(withdrawalFixture))).never()
+          .returning(Future.successful(Right(withdrawalFixture)))
+          .never()
         val request = Post(s"/v1/accounts/$accountId1Fixture/withdrawals").withEntity(HttpEntity(
-          MediaTypes.`application/json`,
-          ByteString("""
+            MediaTypes.`application/json`,
+            ByteString("""
                          |{
                          |  "total": "-42.0000",
                          |  "currency": "EUR"
                          |}
                        """.stripMargin)
-        ))
+          ))
         request ~> routes ~> check {
           status should ===(StatusCodes.BadRequest)
           contentType should ===(ContentTypes.`application/json`)
           responseAs[Problem] should ===(Problems.BadRequest("Withdrawals must be positive"))
         }
       }
-    }
-  }
 
-  "POST a transfer" should {
-    "submit a valid transfer" in {
-      (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).once()
-      (ledgerService
-        .dispatchOperation(_: Transfer)(_: ClassTag[Transfer]))
-        .expects(*, *)
-        .returning(Future.successful(Right(transferFixture)))
-        .once()
-      (accountService.existAccount(_:AccountId)).expects(transferFixture.sourceId).returning(true).once()
-      (accountService.existAccount(_:AccountId)).expects(transferFixture.targetId).returning(true).once()
-      val request = Post(s"/v1/accounts/$accountId1Fixture/transfers").withEntity(
-        HttpEntity(
+      "return 422 if the payload is missing" in {
+        (() => uuid1Generator.generate()).expects().returning(withdrawalFixture.operationId.value).never()
+        (ledgerService
+          .dispatchOperation(_: Withdrawal)(_: ClassTag[Withdrawal]))
+          .expects(*, *)
+          .returning(Future.successful(Right(withdrawalFixture)))
+          .never()
+        val request = Post(s"/v1/accounts/$accountId1Fixture/withdrawals")
+        request ~> routes ~> check {
+          status should ===(StatusCodes.UnprocessableEntity)
+          contentType should ===(ContentTypes.`application/json`)
+          responseAs[Problem] should ===(Problems.UnprocessableEntity("The request is empty, a payload is expected"))
+        }
+      }
+    }
+    "POST a transfer" should {
+      "submit a valid transfer" in {
+        (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).once()
+        (ledgerService
+          .dispatchOperation(_: Transfer)(_: ClassTag[Transfer]))
+          .expects(*, *)
+          .returning(Future.successful(Right(transferFixture)))
+          .once()
+        (accountService.existAccount(_: AccountId)).expects(transferFixture.sourceId).returning(true).once()
+        (accountService.existAccount(_: AccountId)).expects(transferFixture.targetId).returning(true).once()
+        val request = Post(s"/v1/accounts/$accountId1Fixture/transfers").withEntity(HttpEntity(
           MediaTypes.`application/json`,
           ByteString("""
                      |{
@@ -238,24 +272,23 @@ class AccountsRoutesSpec
                      |}
                    """.stripMargin)
         ))
-      request ~> routes ~> check {
-        status should ===(StatusCodes.Accepted)
-        contentType should ===(ContentTypes.`application/json`)
-        responseAs[Transfer] should ===(transferFixture)
+        request ~> routes ~> check {
+          status should ===(StatusCodes.Accepted)
+          contentType should ===(ContentTypes.`application/json`)
+          responseAs[Transfer] should ===(transferFixture)
+        }
       }
-    }
 
-    "return 404 if the source account does not exist" in {
-      (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).never()
-      (ledgerService
-        .dispatchOperation(_: Transfer)(_: ClassTag[Transfer]))
-        .expects(*, *)
-        .returning(Future.successful(Right(transferFixture)))
-        .never()
-      (accountService.existAccount(_:AccountId)).expects(transferFixture.sourceId).returning(false).once()
-      (accountService.existAccount(_:AccountId)).expects(transferFixture.targetId).returning(true).never()
-      val request = Post(s"/v1/accounts/$accountId1Fixture/transfers").withEntity(
-        HttpEntity(
+      "return 404 if the source account does not exist" in {
+        (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).never()
+        (ledgerService
+          .dispatchOperation(_: Transfer)(_: ClassTag[Transfer]))
+          .expects(*, *)
+          .returning(Future.successful(Right(transferFixture)))
+          .never()
+        (accountService.existAccount(_: AccountId)).expects(transferFixture.sourceId).returning(false).once()
+        (accountService.existAccount(_: AccountId)).expects(transferFixture.targetId).returning(true).never()
+        val request = Post(s"/v1/accounts/$accountId1Fixture/transfers").withEntity(HttpEntity(
           MediaTypes.`application/json`,
           ByteString("""
                        |{
@@ -268,24 +301,24 @@ class AccountsRoutesSpec
                        |}
                      """.stripMargin)
         ))
-      request ~> routes ~> check {
-        status should ===(StatusCodes.NotFound)
-        contentType should ===(ContentTypes.`application/json`)
-        responseAs[Problem] should ===(Problems.NotFound(s"Source account ${transferFixture.sourceId} does not exists"))
+        request ~> routes ~> check {
+          status should ===(StatusCodes.NotFound)
+          contentType should ===(ContentTypes.`application/json`)
+          responseAs[Problem] should ===(
+            Problems.NotFound(s"Source account ${transferFixture.sourceId} does not exists"))
+        }
       }
-    }
 
-    "return 400 if the target account does not exist" in {
-      (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).never()
-      (ledgerService
-        .dispatchOperation(_: Transfer)(_: ClassTag[Transfer]))
-        .expects(*, *)
-        .returning(Future.successful(Right(transferFixture)))
-        .never()
-      (accountService.existAccount(_:AccountId)).expects(transferFixture.sourceId).returning(true).once()
-      (accountService.existAccount(_:AccountId)).expects(transferFixture.targetId).returning(false).once()
-      val request = Post(s"/v1/accounts/$accountId1Fixture/transfers").withEntity(
-        HttpEntity(
+      "return 400 if the target account does not exist" in {
+        (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).never()
+        (ledgerService
+          .dispatchOperation(_: Transfer)(_: ClassTag[Transfer]))
+          .expects(*, *)
+          .returning(Future.successful(Right(transferFixture)))
+          .never()
+        (accountService.existAccount(_: AccountId)).expects(transferFixture.sourceId).returning(true).once()
+        (accountService.existAccount(_: AccountId)).expects(transferFixture.targetId).returning(false).once()
+        val request = Post(s"/v1/accounts/$accountId1Fixture/transfers").withEntity(HttpEntity(
           MediaTypes.`application/json`,
           ByteString("""
                        |{
@@ -298,25 +331,24 @@ class AccountsRoutesSpec
                        |}
                      """.stripMargin)
         ))
-      request ~> routes ~> check {
-        status should ===(StatusCodes.NotFound)
-        contentType should ===(ContentTypes.`application/json`)
-        responseAs[Problem] should ===(
-          Problems.NotFound(s"Target account ${transferFixture.targetId} does not exists"))
+        request ~> routes ~> check {
+          status should ===(StatusCodes.NotFound)
+          contentType should ===(ContentTypes.`application/json`)
+          responseAs[Problem] should ===(
+            Problems.NotFound(s"Target account ${transferFixture.targetId} does not exists"))
+        }
       }
-    }
 
-    "return 400 if the source_id and target_id matches" in {
-      (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).never()
-      (ledgerService
-        .dispatchOperation(_: Transfer)(_: ClassTag[Transfer]))
-        .expects(*, *)
-        .returning(Future.successful(Right(transferFixture)))
-        .never()
-      (accountService.existAccount(_:AccountId)).expects(transferFixture.sourceId).returning(true).never()
-      (accountService.existAccount(_:AccountId)).expects(transferFixture.targetId).returning(true).never()
-      val request = Post(s"/v1/accounts/$accountId1Fixture/transfers").withEntity(
-        HttpEntity(
+      "return 400 if the source_id and target_id matches" in {
+        (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).never()
+        (ledgerService
+          .dispatchOperation(_: Transfer)(_: ClassTag[Transfer]))
+          .expects(*, *)
+          .returning(Future.successful(Right(transferFixture)))
+          .never()
+        (accountService.existAccount(_: AccountId)).expects(transferFixture.sourceId).returning(true).never()
+        (accountService.existAccount(_: AccountId)).expects(transferFixture.targetId).returning(true).never()
+        val request = Post(s"/v1/accounts/$accountId1Fixture/transfers").withEntity(HttpEntity(
           MediaTypes.`application/json`,
           ByteString("""
                      |{
@@ -329,22 +361,21 @@ class AccountsRoutesSpec
                      |}
                    """.stripMargin)
         ))
-      request ~> routes ~> check {
-        status should ===(StatusCodes.BadRequest)
-        contentType should ===(ContentTypes.`application/json`)
-        responseAs[Problem] should ===(Problems.BadRequest("Transfers sourceId and targetId must be different"))
+        request ~> routes ~> check {
+          status should ===(StatusCodes.BadRequest)
+          contentType should ===(ContentTypes.`application/json`)
+          responseAs[Problem] should ===(Problems.BadRequest("Transfers sourceId and targetId must be different"))
+        }
       }
-    }
 
-    "return 400 if the amount is negative" in {
-      (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).never()
-      (ledgerService
-        .dispatchOperation(_: Transfer)(_: ClassTag[Transfer]))
-        .expects(*, *)
-        .returning(Future.successful(Right(transferFixture)))
-        .never()
-      val request = Post(s"/v1/accounts/$accountId1Fixture/transfers").withEntity(
-        HttpEntity(
+      "return 400 if the amount is negative" in {
+        (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).never()
+        (ledgerService
+          .dispatchOperation(_: Transfer)(_: ClassTag[Transfer]))
+          .expects(*, *)
+          .returning(Future.successful(Right(transferFixture)))
+          .never()
+        val request = Post(s"/v1/accounts/$accountId1Fixture/transfers").withEntity(HttpEntity(
           MediaTypes.`application/json`,
           ByteString("""
                      |{
@@ -357,10 +388,26 @@ class AccountsRoutesSpec
                      |}
                    """.stripMargin)
         ))
-      request ~> routes ~> check {
-        status should ===(StatusCodes.BadRequest)
-        contentType should ===(ContentTypes.`application/json`)
-        responseAs[Problem] should ===(Problems.BadRequest("Transfer must be positive"))
+        request ~> routes ~> check {
+          status should ===(StatusCodes.BadRequest)
+          contentType should ===(ContentTypes.`application/json`)
+          responseAs[Problem] should ===(Problems.BadRequest("Transfer must be positive"))
+        }
+      }
+
+      "return 422 if the payload is missing" in {
+        (() => uuid1Generator.generate()).expects().returning(depositFixture.operationId.value).never()
+        (ledgerService
+          .dispatchOperation(_: Transfer)(_: ClassTag[Transfer]))
+          .expects(*, *)
+          .returning(Future.successful(Right(transferFixture)))
+          .never()
+        val request = Post(s"/v1/accounts/$accountId1Fixture/transfers")
+        request ~> routes ~> check {
+          status should ===(StatusCodes.UnprocessableEntity)
+          contentType should ===(ContentTypes.`application/json`)
+          responseAs[Problem] should ===(Problems.UnprocessableEntity("The request is empty, a payload is expected"))
+        }
       }
     }
   }

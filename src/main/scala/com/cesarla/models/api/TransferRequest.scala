@@ -1,5 +1,6 @@
-package com.cesarla.models
+package com.cesarla.models.api
 
+import com.cesarla.models.{AccountId, Money}
 import com.cesarla.utils.JsonFormatting
 import play.api.libs.json._
 

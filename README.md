@@ -28,6 +28,9 @@ Create Account:
 curl --request POST \
   --url http://localhost:8080/v1/customers/${CUSTOMER_ID}/accounts \
   --header 'content-type: application/json'
+  --data '{
+  	"currency": "EUR"
+  }'
 ```
 
 Get Account:

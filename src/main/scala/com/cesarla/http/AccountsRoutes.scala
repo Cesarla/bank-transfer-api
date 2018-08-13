@@ -9,6 +9,7 @@ import akka.http.scaladsl.server.Directives.{pathPrefix, _}
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.util.Timeout
+import com.cesarla.models.api.TransferRequest
 import com.cesarla.models.{Withdrawal, _}
 import com.cesarla.services.{AccountService, LedgerService}
 import com.fasterxml.uuid.{NoArgGenerator => UUID1Generator}
@@ -48,8 +49,8 @@ trait AccountsRoutes extends PlayJsonSupport {
         post {
           concat(
             pathPrefix("transfers") {
-              entity(as[TransferRequest]) {
-                transferRequest: TransferRequest =>
+              entity(as[Option[TransferRequest]]) {
+                case Some(transferRequest) =>
                   if (transferRequest.money.total <= BigDecimal.valueOf(0)) {
                     complete(Problems.BadRequest("Transfer must be positive").asResult)
                   } else if (transferRequest.targetId == accountId) {
@@ -72,11 +73,12 @@ trait AccountsRoutes extends PlayJsonSupport {
                         complete(problem.asResult)
                     }
                   }
+                case _ => complete(Problems.UnprocessableEntity("The request is empty, a payload is expected").asResult)
               }
             },
             pathPrefix("deposits") {
-              entity(as[Money]) {
-                money: Money =>
+              entity(as[Option[Money]]) {
+                case Some(money) =>
                   if (money.total <= BigDecimal.valueOf(0)) {
                     complete(Problems.BadRequest("Deposits must be positive").asResult)
                   } else if (!accountService.existAccount(accountId)) {
@@ -92,11 +94,12 @@ trait AccountsRoutes extends PlayJsonSupport {
                         complete(problem.asResult)
                     }
                   }
+                case _ => complete(Problems.UnprocessableEntity("The request is empty, a payload is expected").asResult)
               }
             },
             pathPrefix("withdrawals") {
-              entity(as[Money]) {
-                money: Money =>
+              entity(as[Option[Money]]) {
+                case Some(money) =>
                   if (money.total <= BigDecimal.valueOf(0)) {
                     complete(Problems.BadRequest("Withdrawals must be positive").asResult)
                   } else if (!accountService.existAccount(accountId)) {
@@ -112,6 +115,7 @@ trait AccountsRoutes extends PlayJsonSupport {
                         complete(problem.asResult)
                     }
                   }
+                case _ => complete(Problems.UnprocessableEntity("The request is empty, a payload is expected").asResult)
               }
             }
           )

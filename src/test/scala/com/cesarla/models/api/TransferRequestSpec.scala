@@ -1,6 +1,7 @@
-package com.cesarla.models
+package com.cesarla.models.api
 
 import com.cesarla.data.Fixtures
+import com.cesarla.models.{AccountId, Money}
 import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
 import org.scalatest.{Matchers, WordSpec}
 import play.api.libs.json.{JsValue, Json}

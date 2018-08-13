@@ -20,5 +20,6 @@ object Problems {
   def NotFound(reason: String): Problem = Problem(reason, StatusCodes.NotFound)
   def BadRequest(reason: String): Problem = Problem(reason, StatusCodes.BadRequest)
   def Conflict(reason: String): Problem = Problem(reason, StatusCodes.Conflict)
+  def UnprocessableEntity(reason: String): Problem = Problem(reason, StatusCodes.UnprocessableEntity)
   def InternalServerError(reason: String): Problem = Problem(reason, StatusCodes.InternalServerError)
 }

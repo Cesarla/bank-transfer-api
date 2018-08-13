@@ -119,7 +119,15 @@ class CustomersRoutesSpec
           .expects(*, *)
           .returning(Future.successful(Right(accountId1Fixture)))
           .once()
-        val request = Post(s"/v1/customers/$customerIdFixture/accounts")
+        val request = Post(s"/v1/customers/$customerIdFixture/accounts").withEntity(
+          HttpEntity(
+            MediaTypes.`application/json`,
+            ByteString("""
+                         |{
+                         |  "currency": "EUR"
+                         |}
+                       """.stripMargin)
+          ))
         request ~> routes ~> check {
           status should ===(StatusCodes.Created)
           status should ===(StatusCodes.Created)
@@ -132,7 +140,15 @@ class CustomersRoutesSpec
           .expects(*, *)
           .returning(Future.successful(Left(problem)))
           .once()
-        val request = Post(s"/v1/customers/$customerIdFixture/accounts")
+        val request = Post(s"/v1/customers/$customerIdFixture/accounts").withEntity(
+          HttpEntity(
+            MediaTypes.`application/json`,
+            ByteString("""
+                         |{
+                         |  "currency": "EUR"
+                         |}
+                       """.stripMargin)
+          ))
         request ~> routes ~> check {
           status should ===(StatusCodes.Conflict)
           contentType should ===(ContentTypes.`application/json`)

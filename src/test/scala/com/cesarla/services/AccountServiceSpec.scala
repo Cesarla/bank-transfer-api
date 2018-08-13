@@ -36,14 +36,45 @@ class AccountServiceSpec extends WordSpec with Matchers with PlayJsonSupport wit
         accountId should ===(accountId1Fixture)
       }
 
+      "return problem if currency is not supported" in new WithMocks {
+        (mockCustomerRepository
+          .getCustomer(_: CustomerId))
+          .expects(customerIdFixture)
+          .returning(Some(customerFixture))
+          .once()
+        (mockCustomerRepository.setCustomer(_: Customer)).expects(*).never()
+        (mockLedgerService
+          .dispatchOperation(_: Deposit)(_: ClassTag[Deposit]))
+          .expects(*, *)
+          .returning(Future.successful(Right(depositFixture)))
+          .never()
+        (() => mockTimeBasedGenerator.generate).expects().returning(accountId1Fixture.value).never()
+        val Left(problem) = Await.result(accountService.createAccount(customerIdFixture, "JPY"), 100.milliseconds)
+        problem should ===(Problems.BadRequest(s"The currency JPY is not supported"))
+      }
+
       "return problem if customer does not exists" in new WithMocks {
-        (mockCustomerRepository.getCustomer(_: CustomerId)).expects(*).returning(None)
+        (mockCustomerRepository.getCustomer(_: CustomerId)).expects(*).returning(None).once()
+        (mockCustomerRepository.setCustomer(_: Customer)).expects(*).never()
+        (mockLedgerService
+          .dispatchOperation(_: Deposit)(_: ClassTag[Deposit]))
+          .expects(*, *)
+          .returning(Future.successful(Right(depositFixture)))
+          .never()
+        (() => mockTimeBasedGenerator.generate).expects().returning(accountId1Fixture.value).never()
         val Left(problem) = Await.result(accountService.createAccount(customerIdFixture, Money.Euro), 100.milliseconds)
         problem should ===(Problems.NotFound(s"Customer $customerIdFixture not found"))
       }
 
       "if the customer already has an account for that currency" in new WithMocks {
-        (mockCustomerRepository.getCustomer(_: CustomerId)).expects(*).returning(Some(customerFixture))
+        (mockCustomerRepository.getCustomer(_: CustomerId)).expects(*).returning(Some(customerFixture)).once()
+        (mockCustomerRepository.setCustomer(_: Customer)).expects(*).never()
+        (mockLedgerService
+          .dispatchOperation(_: Deposit)(_: ClassTag[Deposit]))
+          .expects(*, *)
+          .returning(Future.successful(Right(depositFixture)))
+          .never()
+        (() => mockTimeBasedGenerator.generate).expects().returning(accountId1Fixture.value).never()
         val Left(problem) = Await.result(accountService.createAccount(customerIdFixture, Money.Euro), 100.milliseconds)
         problem should ===(Problems.BadRequest("The customer already has an account with the given currency"))
       }
