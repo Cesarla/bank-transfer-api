@@ -15,6 +15,7 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
   "LedgerService" can {
     "dispatch" should {
       "valid deposits" in new WithStubs {
+        (mockLedger.replayAccount _).when(*).returns((snapshotFixture, 0))
         val Right(_) =
           Await.result(ledgerService.dispatchOperation(depositFixture.copy(status = OperationStatus.Progress)),
                        150.milliseconds)
@@ -25,7 +26,7 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
       }
 
       "valid withdrawal" in new WithStubs {
-        (mockLedger.replayAccount _).when(*).returns(snapshotFixture)
+        (mockLedger.replayAccount _).when(*).returns((snapshotFixture, 1))
         val Right(_) =
           Await.result(ledgerService.dispatchOperation(withdrawalFixture.copy(status = OperationStatus.Progress)),
                        150.milliseconds)
@@ -37,7 +38,7 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
       }
 
       "set withdrawal as failed if there is not enough founds" in new WithStubs {
-        (mockLedger.replayAccount _).when(*).returns(snapshotFixture)
+        (mockLedger.replayAccount _).when(*).returns((snapshotFixture, 1))
         val Right(_) =
           Await.result(ledgerService.dispatchOperation(
                          withdrawalFixture.copy(money = Money(100, "EUR"), status = OperationStatus.Progress)),
@@ -50,7 +51,7 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
       }
 
       "valid transfers" in new WithStubs {
-        (mockLedger.replayAccount _).when(*).returns(snapshotFixture)
+        (mockLedger.replayAccount _).when(*).returns((snapshotFixture, 1))
         val Right(_) =
           Await.result(ledgerService.dispatchOperation(transferFixture.copy(status = OperationStatus.Progress)),
                        150.milliseconds)
@@ -61,7 +62,7 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
       }
 
       "set transfer as failed if there is not enough founds" in new WithStubs {
-        (mockLedger.replayAccount _).when(*).returns(snapshotFixture)
+        (mockLedger.replayAccount _).when(*).returns((snapshotFixture, 1))
         val Right(_) =
           Await.result(ledgerService.dispatchOperation(
                          transferFixture.copy(money = Money(100, "EUR"), status = OperationStatus.Progress)),
@@ -103,7 +104,7 @@ class LedgerServiceSpec extends WordSpec with Matchers with Eventually with Mock
     "computeBalance" should {
       "with records" in new WithMocks {
         (mockLedger.getRecords(_: AccountId)).expects(*).returning(List(recordFixture)).once()
-        (mockLedger.replayAccount(_: AccountId)).expects(*).returning(snapshotFixture).once()
+        (mockLedger.replayAccount(_: AccountId)).expects(*).returning((snapshotFixture, 1)).once()
 
         val Right(snapshot) = ledgerService.computeBalance(accountId1Fixture)
         snapshot should ===(snapshotFixture)

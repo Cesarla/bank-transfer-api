@@ -57,18 +57,25 @@ class LedgerService(ledger: Ledger, operationRepository: OperationRepository, pa
   def computeBalance(accountId: AccountId): Either[Problem, Snapshot] = {
     if (ledger.getRecords(accountId).isEmpty) {
       Left(Problems.NotFound(s"Account $accountId not found"))
-    } else Right(ledger.replayAccount(accountId))
+    } else Right(ledger.replayAccount(accountId)._1)
   }
 
   private[this] def processDeposit(deposit: Deposit): Unit = {
-    ledger.storeRecord(deposit.accountId, deposit.asRecord)
-    operationRepository.setAsSuccessful(deposit.operationId)
+    val (snapshot, numberOfRecords) = ledger.replayAccount(deposit.accountId)
+    if (numberOfRecords > 0 && deposit.money.currency != snapshot.balance.currency) {
+      operationRepository.setAsFailed(deposit.operationId, Some("Currency exchanges are not supported"))
+    } else {
+      ledger.storeRecord(deposit.accountId, deposit.asRecord)
+      operationRepository.setAsSuccessful(deposit.operationId)
+    }
   }
 
   private[this] def processWithdrawal(withdrawal: Withdrawal): Unit = {
-    val snapshot = ledger.replayAccount(withdrawal.accountId)
+    val (snapshot, _)  = ledger.replayAccount(withdrawal.accountId)
     if (withdrawal.money.total > snapshot.balance.total) {
       operationRepository.setAsFailed(withdrawal.operationId, Some("Not enough founds"))
+    } else if (withdrawal.money.currency != snapshot.balance.currency) {
+      operationRepository.setAsFailed(withdrawal.operationId, Some("Currency exchanges are not supported"))
     } else {
       ledger.storeRecord(withdrawal.accountId, withdrawal.asRecord)
       operationRepository.setAsSuccessful(withdrawal.operationId)
@@ -76,9 +83,11 @@ class LedgerService(ledger: Ledger, operationRepository: OperationRepository, pa
   }
 
   private[this] def processTransfer(transfer: Transfer): Unit = {
-    val snapshot = ledger.replayAccount(transfer.sourceId)
+    val (snapshot, _) = ledger.replayAccount(transfer.sourceId)
     if (transfer.money.total > snapshot.balance.total) {
       operationRepository.setAsFailed(transfer.operationId, Some("Not enough founds"))
+    } else if (transfer.money.currency != snapshot.balance.currency) {
+      operationRepository.setAsFailed(transfer.operationId, Some("Currency exchanges are not supported"))
     } else {
       val deposit: Deposit = transfer.asDeposit
       ledger.storeRecord(transfer.sourceId, transfer.asRecord)
