@@ -1,12 +1,19 @@
 # bank-transfer-api
+Simple transfer api. Authentication, monitoring, metrics and availability have not been consider within the scope of the project.
 
+## Run
 In order to execute the project:
 ```
 ./bin/sbt run
 ```
 
-## Api Model:
+## Test
+```
+./bin/sbt test
+```
 
+
+## Api Model:
 Create Customer:
 ```
 curl --request POST \
@@ -57,7 +64,7 @@ curl --request POST \
   --url http://localhost:8080/v1/accounts/${ACCOUNT_ID}/withdrawals \
   --header 'content-type: application/json' \
   --data '{
-	"total": "10",
+	"total": "10.0000",
 	"currency": "EUR"
 }'
 ```
@@ -70,7 +77,7 @@ curl --request POST \
   --data '{
 	"target_id": "337bcc6a-9aa6-11e8-aae2-0575fd2b3cfb",
 	"money": {
-		"total": "21",
+		"total": "21.0000",
 		"currency": "EUR"
 	}
 }'

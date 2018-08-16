@@ -17,7 +17,9 @@ class PubSubService(handler: Operation => Unit) {
         try {
           handler(queue.take())
         } catch {
-          case _: InterruptedException => ()
+          case _: InterruptedException =>
+            Thread.currentThread.interrupt()
+            ()
         }
       }
     }
